@@ -1,0 +1,181 @@
+[gd_scene format=3 uid="uid://lv00d7jstpva"]
+
+[ext_resource type="Script" uid="uid://c8pxxmmjl40t8" path="res://Scripts/character_select.gd" id="1_2b87j"]
+[ext_resource type="FontFile" uid="uid://dm7hdy4la56wj" path="res://Fonts/Alkhemikal.ttf" id="1_4yuuj"]
+[ext_resource type="Texture2D" uid="uid://g7yry5orfco8" path="res://Sprites/Character Select/fighter_portrait.png" id="2_2b87j"]
+[ext_resource type="Texture2D" uid="uid://rjf7t74q5rd0" path="res://Sprites/Character Select/mage_portrait.png" id="3_krxhl"]
+[ext_resource type="Texture2D" uid="uid://de2aq3v4lo8v3" path="res://Sprites/Character Select/tank_portrait.png" id="4_72d1u"]
+[ext_resource type="FontFile" uid="uid://bv55qsn56wwh" path="res://Fonts/ari-w9500-bold.ttf" id="6_krxhl"]
+[ext_resource type="AudioStream" uid="uid://bwmxeowhuhg2w" path="res://Sounds/blipSelect.wav" id="7_d1kp4"]
+[ext_resource type="AudioStream" uid="uid://iomc08gweo8n" path="res://Sounds/blipConfirm.wav" id="8_brbi3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yf5fn"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_krxhl"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_72d1u"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[node name="CharacterSelect" type="Control" unique_id=1029808181]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2b87j")
+
+[node name="Background" type="ColorRect" parent="." unique_id=1118554790]
+layout_mode = 0
+offset_right = 320.0
+offset_bottom = 180.0
+color = Color(0, 0, 0, 1)
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="." unique_id=29785775]
+position = Vector2(160, 90)
+amount = 500
+emission_shape = 3
+emission_rect_extents = Vector2(160, 90)
+gravity = Vector2(5, -2)
+color = Color(0.43, 0.15910001, 0.15910001, 1)
+
+[node name="Title" type="Label" parent="." unique_id=1866588048]
+texture_filter = 1
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -100.0
+offset_top = 8.0
+offset_right = 100.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_fonts/font = ExtResource("1_4yuuj")
+theme_override_font_sizes/font_size = 36
+text = "Character Select"
+
+[node name="PortraitContainer" type="HBoxContainer" parent="." unique_id=458508578]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -58.0
+offset_top = -25.0
+offset_right = 58.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Fighter" type="PanelContainer" parent="PortraitContainer" unique_id=658502184]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_yf5fn")
+
+[node name="TextureButton" type="TextureButton" parent="PortraitContainer/Fighter" unique_id=2042749107]
+texture_filter = 1
+layout_mode = 2
+texture_normal = ExtResource("2_2b87j")
+
+[node name="Mage" type="PanelContainer" parent="PortraitContainer" unique_id=702785512]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_yf5fn")
+
+[node name="TextureButton" type="TextureButton" parent="PortraitContainer/Mage" unique_id=1952836729]
+texture_filter = 1
+layout_mode = 2
+texture_normal = ExtResource("3_krxhl")
+
+[node name="Tank" type="PanelContainer" parent="PortraitContainer" unique_id=1550912620]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_yf5fn")
+
+[node name="TextureButton" type="TextureButton" parent="PortraitContainer/Tank" unique_id=1784910049]
+texture_filter = 1
+layout_mode = 2
+texture_normal = ExtResource("4_72d1u")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1882472537]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -65.0
+offset_right = 20.0
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Name" type="Label" parent="VBoxContainer" unique_id=1708977984]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("1_4yuuj")
+horizontal_alignment = 1
+
+[node name="Description" type="Label" parent="VBoxContainer" unique_id=2009662302]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_krxhl")
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StartButton" type="Button" parent="." unique_id=535513804]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 160.0
+offset_right = 158.0
+offset_bottom = 168.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("6_krxhl")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_krxhl")
+text = "Start"
+
+[node name="BackButton" type="Button" parent="." unique_id=229493481]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 160.0
+offset_right = 38.0
+offset_bottom = 177.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("6_krxhl")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_72d1u")
+text = "Back"
+
+[node name="HoverSound" type="AudioStreamPlayer" parent="." unique_id=1327791925]
+stream = ExtResource("7_d1kp4")
+bus = &"SFX"
+
+[node name="ConfirmSound" type="AudioStreamPlayer" parent="." unique_id=117002837]
+stream = ExtResource("8_brbi3")
+bus = &"SFX"
+
+[connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="BackButton" to="." method="_on_back_button_pressed"]

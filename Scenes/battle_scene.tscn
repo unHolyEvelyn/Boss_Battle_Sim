@@ -1,0 +1,564 @@
+[gd_scene format=3 uid="uid://hwohxdio5d6t"]
+
+[ext_resource type="Texture2D" uid="uid://b23r7cd8qqr6p" path="res://Sprites/Boss/boss_legs.png" id="1_gt16y"]
+[ext_resource type="Script" uid="uid://k2ne27w5kkoj" path="res://Scripts/battle_scene.gd" id="1_ms847"]
+[ext_resource type="Script" uid="uid://dua7kgld3yik0" path="res://Scripts/boss.gd" id="1_w4764"]
+[ext_resource type="Texture2D" uid="uid://bufjkym174w3c" path="res://Sprites/Boss/boss_torso.png" id="2_20f6w"]
+[ext_resource type="Script" uid="uid://djbur718kpvh4" path="res://Scripts/cpu_particles_2d.gd" id="2_f856b"]
+[ext_resource type="Texture2D" uid="uid://d1g8enpbb42a1" path="res://Sprites/Boss/boss_left_arm.png" id="3_w4764"]
+[ext_resource type="Texture2D" uid="uid://r4ijskjwv4f7" path="res://Sprites/Boss/boss_head.png" id="4_ed262"]
+[ext_resource type="Texture2D" uid="uid://m5jw5m7wrr72" path="res://Sprites/Boss/boss_right_arm.png" id="5_ms847"]
+[ext_resource type="FontFile" uid="uid://bv55qsn56wwh" path="res://Fonts/ari-w9500-bold.ttf" id="6_f4ggb"]
+[ext_resource type="AudioStream" uid="uid://3p5ki4mre1b0" path="res://Music/bossbattle.ogg" id="7_20f6w"]
+[ext_resource type="Texture2D" uid="uid://ckodvt7uph40j" path="res://Sprites/Player Battle/fighter_battle.png" id="7_ed262"]
+[ext_resource type="Texture2D" uid="uid://yjawvfcavl1x" path="res://Sprites/Player Battle/mage_battle.png" id="9_wb0gu"]
+[ext_resource type="Texture2D" uid="uid://bwwyfvt1c7d7l" path="res://Sprites/Player Battle/tank_battle.png" id="10_84vmf"]
+[ext_resource type="Script" uid="uid://c4pdv40fihqxa" path="res://Scripts/player.gd" id="11_84vmf"]
+[ext_resource type="Script" uid="uid://dmqmu1vv1b5ph" path="res://Scripts/fighter_bp.gd" id="12_xdap8"]
+[ext_resource type="Script" uid="uid://qs4jranxbrje" path="res://Scripts/mage_spells.gd" id="14_tfvgr"]
+[ext_resource type="Script" uid="uid://mea63k4m86r" path="res://Scripts/tank_parry.gd" id="15_kbww3"]
+[ext_resource type="AudioStream" uid="uid://bwmxeowhuhg2w" path="res://Sounds/blipSelect.wav" id="16_778cw"]
+[ext_resource type="Texture2D" uid="uid://o4r6bdoek6b0" path="res://Sprites/UI/parrybarframe.png" id="17_vol83"]
+[ext_resource type="AudioStream" uid="uid://iomc08gweo8n" path="res://Sounds/blipConfirm.wav" id="17_vuvll"]
+
+[sub_resource type="Animation" id="Animation_wb0gu"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Torso:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(259, 43)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Torso:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Torso/Head:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-1, -18)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Torso/Head:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Torso/RightArm:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Torso/LeftArm:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Legs:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(258, 63)]
+}
+
+[sub_resource type="Animation" id="Animation_84vmf"]
+resource_name = "idle"
+length = 1.6
+loop_mode = 1
+step = 0.004166667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Torso:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(259, 43), Vector2(259, 41), Vector2(259, 43)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Torso:rotation")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.034906585, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Torso/Head:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-1, -18)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Torso/Head:rotation")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, -0.05235988, 0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Torso/RightArm:rotation")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, -0.06981317, 0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Torso/LeftArm:rotation")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.06981317, 0.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Legs:position")
+tracks/6/interp = 2
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(258, 63), Vector2(258, 61), Vector2(258, 63)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_xdap8"]
+_data = {
+&"RESET": SubResource("Animation_wb0gu"),
+&"idle": SubResource("Animation_84vmf")
+}
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xdap8"]
+atlas = ExtResource("7_ed262")
+region = Rect2(0, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f856b"]
+atlas = ExtResource("7_ed262")
+region = Rect2(32, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_778cw"]
+atlas = ExtResource("7_ed262")
+region = Rect2(64, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vuvll"]
+atlas = ExtResource("7_ed262")
+region = Rect2(96, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tfvgr"]
+atlas = ExtResource("9_wb0gu")
+region = Rect2(0, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kbww3"]
+atlas = ExtResource("9_wb0gu")
+region = Rect2(32, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vol83"]
+atlas = ExtResource("9_wb0gu")
+region = Rect2(64, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kre2b"]
+atlas = ExtResource("9_wb0gu")
+region = Rect2(96, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5gdnp"]
+atlas = ExtResource("10_84vmf")
+region = Rect2(0, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ys5i7"]
+atlas = ExtResource("10_84vmf")
+region = Rect2(32, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qncpg"]
+atlas = ExtResource("10_84vmf")
+region = Rect2(64, 0, 32, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ejyr1"]
+atlas = ExtResource("10_84vmf")
+region = Rect2(96, 0, 32, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_g4v7s"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xdap8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f856b")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_778cw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vuvll")
+}],
+"loop": 1,
+"name": &"fighter_idle",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tfvgr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kbww3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vol83")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kre2b")
+}],
+"loop": 1,
+"name": &"mage_idle",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5gdnp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ys5i7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qncpg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ejyr1")
+}],
+"loop": 1,
+"name": &"tank_idle",
+"speed": 2.0
+}]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g4v7s"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xdap8"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f856b"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_778cw"]
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[sub_resource type="Gradient" id="Gradient_kbww3"]
+colors = PackedColorArray(0.1, 0.1, 0.1, 1, 0.1, 0.1, 0.1, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_kbww3"]
+gradient = SubResource("Gradient_kbww3")
+width = 200
+height = 20
+
+[sub_resource type="Gradient" id="Gradient_vol83"]
+colors = PackedColorArray(0.007843138, 0.5176471, 0.78039217, 1, 0.007843138, 0.5176471, 0.78039217, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_vol83"]
+gradient = SubResource("Gradient_vol83")
+width = 200
+height = 20
+
+[node name="BattleScene" type="Node2D" unique_id=977125472]
+script = ExtResource("1_ms847")
+
+[node name="BackgroundLayer" type="CanvasLayer" parent="." unique_id=1366013066]
+layer = -1
+
+[node name="ColorRect" type="ColorRect" parent="BackgroundLayer" unique_id=55248883]
+offset_right = 320.0
+offset_bottom = 180.0
+color = Color(0, 0, 0, 1)
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="BackgroundLayer" unique_id=473932481]
+position = Vector2(480, 90)
+amount = 500
+randomness = 1.0
+fixed_fps = 240
+emission_shape = 3
+emission_rect_extents = Vector2(160, 90)
+gravity = Vector2(-1000, 0)
+color = Color(1, 0, 0, 1)
+script = ExtResource("2_f856b")
+
+[node name="ArenaWorld" type="Node2D" parent="." unique_id=421172422]
+
+[node name="Boss" type="Node2D" parent="ArenaWorld" unique_id=1274587463]
+script = ExtResource("1_w4764")
+
+[node name="Legs" type="Sprite2D" parent="ArenaWorld/Boss" unique_id=1697983726]
+texture_filter = 1
+position = Vector2(258, 63)
+texture = ExtResource("1_gt16y")
+region_enabled = true
+region_rect = Rect2(7, 34, 26, 27)
+
+[node name="Torso" type="Sprite2D" parent="ArenaWorld/Boss" unique_id=877320327]
+texture_filter = 1
+position = Vector2(259, 43)
+texture = ExtResource("2_20f6w")
+region_enabled = true
+region_rect = Rect2(8, 13, 25, 29)
+
+[node name="LeftArm" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=2102195462]
+z_index = -1
+texture_filter = 1
+position = Vector2(-9, -5)
+texture = ExtResource("3_w4764")
+offset = Vector2(-3, 9)
+region_enabled = true
+region_rect = Rect2(0, 18, 16, 26)
+
+[node name="Head" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=942357196]
+position = Vector2(-1, -18)
+texture = ExtResource("4_ed262")
+region_enabled = true
+region_rect = Rect2(2, 0, 35, 18)
+
+[node name="RightArm" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=113283730]
+position = Vector2(6, -10)
+texture = ExtResource("5_ms847")
+offset = Vector2(4, 13)
+region_enabled = true
+region_rect = Rect2(25, 14, 13, 35)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ArenaWorld/Boss" unique_id=1814970240]
+libraries/ = SubResource("AnimationLibrary_xdap8")
+
+[node name="Player" type="AnimatedSprite2D" parent="ArenaWorld" unique_id=845138062]
+texture_filter = 1
+position = Vector2(77, 62)
+sprite_frames = SubResource("SpriteFrames_g4v7s")
+animation = &"mage_idle"
+frame_progress = 0.24154368
+script = ExtResource("11_84vmf")
+
+[node name="FighterBP" type="Node2D" parent="ArenaWorld/Player" unique_id=1849182876]
+position = Vector2(-77, -62)
+script = ExtResource("12_xdap8")
+
+[node name="MageSpells" type="Node2D" parent="ArenaWorld/Player" unique_id=239535060]
+script = ExtResource("14_tfvgr")
+
+[node name="TankParry" type="Node2D" parent="ArenaWorld/Player" unique_id=2089374523]
+script = ExtResource("15_kbww3")
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=845437685]
+
+[node name="BattleUI" type="Control" parent="UILayer" unique_id=1407931839]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DialogueBox" type="Panel" parent="UILayer" unique_id=906657516]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -75.0
+offset_right = -10.0
+offset_bottom = -15.000107
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_g4v7s")
+
+[node name="Label" type="Label" parent="UILayer/DialogueBox" unique_id=801888260]
+layout_mode = 0
+offset_left = 7.0
+offset_top = 7.0
+offset_right = 293.0
+offset_bottom = 53.0
+theme_override_fonts/font = ExtResource("6_f4ggb")
+theme_override_font_sizes/font_size = 8
+autowrap_mode = 3
+
+[node name="ActionMenu" type="HBoxContainer" parent="UILayer" unique_id=1008360182]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -59.0
+offset_top = -15.0
+offset_right = 59.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 15
+
+[node name="AttackButton" type="Button" parent="UILayer/ActionMenu" unique_id=1225802362]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_f4ggb")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_xdap8")
+text = "Attack"
+
+[node name="DefendButton" type="Button" parent="UILayer/ActionMenu" unique_id=1720870234]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_f4ggb")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_f856b")
+text = "Defend"
+
+[node name="SkillButton" type="Button" parent="UILayer/ActionMenu" unique_id=1587318666]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_f4ggb")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_778cw")
+text = "Skill"
+
+[node name="ParryBar" type="TextureProgressBar" parent="UILayer" unique_id=350704585]
+texture_filter = 1
+offset_left = 60.0
+offset_top = 135.0
+offset_right = 260.0
+offset_bottom = 155.0
+texture_under = SubResource("GradientTexture2D_kbww3")
+texture_over = ExtResource("17_vol83")
+texture_progress = SubResource("GradientTexture2D_vol83")
+
+[node name="ClassHUD" type="MarginContainer" parent="UILayer" unique_id=938554420]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -149.0
+offset_top = 2.0
+offset_right = 151.0
+offset_bottom = 14.000015
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="UILayer/ClassHUD" unique_id=1355217405]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_f4ggb")
+theme_override_font_sizes/font_size = 8
+text = "CLASS - HP XX/XX"
+
+[node name="BattleBGM" type="AudioStreamPlayer" parent="." unique_id=1611003404]
+stream = ExtResource("7_20f6w")
+autoplay = true
+bus = &"Music"
+
+[node name="HoverSound" type="AudioStreamPlayer" parent="." unique_id=513643473]
+stream = ExtResource("16_778cw")
+bus = &"SFX"
+
+[node name="ConfirmSound" type="AudioStreamPlayer" parent="." unique_id=1398813449]
+stream = ExtResource("17_vuvll")
+bus = &"SFX"
