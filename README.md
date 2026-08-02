@@ -1,7 +1,7 @@
 # Boss_Battle_Sim
 Boss Battle Simulator game, where 3 classes of heroes fight a powerful boss with differing strategies.
 
-<img width="120" height="48" alt="Game Banner" src="https://github.com/user-attachments/assets/2f0f8c4f-1cd2-47cd-8014-e275bb1450c9" />
+<img width="1440" height="576" alt="ComfyUI_00113_" src="https://github.com/user-attachments/assets/31f9d98a-64e5-4a3d-b5ed-cbdbc5d78925" />
 
 Featuring 3 classes of hero:
 - **Fighter:** Balanced offense and Defense.  Can stack his attacks, for a price.
