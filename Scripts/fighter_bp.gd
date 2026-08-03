@@ -3,6 +3,35 @@ extends Node2D
 
 signal bp_changed(new_bp: int)
 signal actions_updated(total_actions: int)
+signal stance_changed(new_stance: Stance)
+
+enum Stance { BERSERK, BALANCED, GUARD}
+
+var current_stance: Stance = Stance.BALANCED
+
+# --- STANCE EVALUATOR ---
+func _update_stance() -> void:
+	var old_stance = current_stance
+	
+	if current_bp > 0:
+		current_stance = Stance.BERSERK
+	elif current_bp < 0:
+		current_stance = Stance.GUARD
+	else:
+		current_stance = Stance.BALANCED
+
+	if old_stance != current_stance:
+		stance_changed.emit(current_stance)
+		_apply_stance_modifiers()
+
+func _apply_stance_modifiers() -> void:
+	match current_stance:
+		Stance.BERSERK:
+			print("Fighter Stance: BERSERK (+50% ATK, +25% DMG Taken)")
+		Stance.BALANCED:
+			print("Fighter Stance: BALANCED (Standard Stats)")
+		Stance.GUARD:
+			print("Fighter Stance: GUARD (Defensive Armor Active in Debt)")
 
 @export var max_bp: int = 3
 @export var min_bp: int = -4
@@ -16,6 +45,7 @@ func perform_default() -> bool:
 	if current_bp < max_bp:
 		current_bp += 1
 		bp_changed.emit(current_bp)
+		_update_stance()
 	
 	# Defaulting immediately ends turn planning with 1 defensive turn
 	return true 
@@ -31,6 +61,7 @@ func try_brave() -> bool:
 	
 	bp_changed.emit(current_bp)
 	actions_updated.emit(queued_actions)
+	_update_stance()
 	return true
 
 # Resets queued hits back to 1 for the next turn

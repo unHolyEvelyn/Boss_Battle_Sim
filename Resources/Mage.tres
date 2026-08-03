@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://b1l1vy5buwsak"]
+
+[ext_resource type="Script" uid="uid://b2jlhgd38o078" path="res://Scripts/CharacterData.gd" id="1_ibpmp"]
+[ext_resource type="Texture2D" uid="uid://rjf7t74q5rd0" path="res://Sprites/Character Select/mage_portrait.png" id="1_qogdr"]
+
+[resource]
+script = ExtResource("1_ibpmp")
+character_name = "Mage"
+portrait = ExtResource("1_qogdr")
+short_description = "Tactical caster. Combos powerful and fast spells to cause damage."
+detailed_pages = Array[String](["The Mage has a variety of spells, and you should use these rather than a straight attack.", "These spells, which will be explained here, can be combined to make powerful effects on different turns, but you must watch your health.", "Spark:
+Fast casting spell, attacks on the same turn.  Using it the turn a spell detonates boosts Spark's damage (1.75x)", "Delayed Ruin:
+Medium power detonation spell that takes 2 turns to activate.  Decent damage.", "Frost Doom:
+A risky cast, you must wait 3 turns for detonation for a powerful blast.  Massive Damage.", "Heal Bloom:
+Restores a fraction of HP.  You'll be using this one a lot, as Mage has a low health pool.", "Arcane Barrier:
+A cast that instantly mitigates 60% of damage.  Ideal for waiting for detonations while healthy.", "Overcharge:
+Add 50% damage to your next detonation cast.  I recommend using this BEFORE casting detonations.", "Every spell has its cost to cast! The Mage has a special MP bar that tracks how much Mana she has left.  You can DEFEND to regain +15 mana as well as passively regaining mana per turn. "])
+metadata/_custom_type_script = "uid://b2jlhgd38o078"

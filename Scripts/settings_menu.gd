@@ -155,14 +155,12 @@ func _on_music_toggled(toggled_on: bool) -> void:
 func _on_sfx_toggled(toggled_on: bool) -> void:
 	SettingsManager.set_sfx_enabled(toggled_on)
 
+# --- AUDIO HELPER METHODS ---
 func _on_back_pressed() -> void:
 	if confirm_sound:
 		confirm_sound.play()
 	hide()
-
-
-# --- AUDIO HELPER METHODS ---
-
+	
 func _on_button_hovered() -> void:
 	if hover_sound:
 		hover_sound.play()

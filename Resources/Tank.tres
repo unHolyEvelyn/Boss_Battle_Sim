@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CharacterData" format=3 uid="uid://fasefyfqpxoe"]
+
+[ext_resource type="Texture2D" uid="uid://de2aq3v4lo8v3" path="res://Sprites/Character Select/tank_portrait.png" id="1_6tf8y"]
+[ext_resource type="Script" uid="uid://b2jlhgd38o078" path="res://Scripts/CharacterData.gd" id="1_82khb"]
+
+[resource]
+script = ExtResource("1_82khb")
+character_name = "Tank"
+portrait = ExtResource("1_6tf8y")
+short_description = "Heavy defender. Absorbs hits and counters with massive force."
+detailed_pages = Array[String](["The Tank has massive health and defense, at the cost of offense.  Fret not, there are ways around the low offense.", "Time your perfect parry to knock the Boss off guard and negate his damage, and the next turn unleash your powerful Counter Strike.", "Don't worry, if you get a partial parry it'll mitigate the damage, but if you miss, you stagger and the Boss deals triple damage!"])
+metadata/_custom_type_script = "uid://b2jlhgd38o078"

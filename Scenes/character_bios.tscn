@@ -1,0 +1,133 @@
+[gd_scene format=3 uid="uid://b0utnfxdofirw"]
+
+[ext_resource type="Script" uid="uid://bu3uyeoncwute" path="res://Scripts/character_bios.gd" id="1_qs2ld"]
+[ext_resource type="Texture2D" uid="uid://rjf7t74q5rd0" path="res://Sprites/Character Select/mage_portrait.png" id="1_xybtx"]
+[ext_resource type="Script" uid="uid://b2jlhgd38o078" path="res://Scripts/CharacterData.gd" id="2_qg735"]
+[ext_resource type="FontFile" uid="uid://dm7hdy4la56wj" path="res://Fonts/Alkhemikal.ttf" id="2_qs2ld"]
+[ext_resource type="Resource" uid="uid://c1rwvcwdt20d6" path="res://Resources/Fighter.tres" id="3_gjiw6"]
+[ext_resource type="FontFile" uid="uid://bv55qsn56wwh" path="res://Fonts/ari-w9500-bold.ttf" id="3_y1lb2"]
+[ext_resource type="Resource" uid="uid://b1l1vy5buwsak" path="res://Resources/Mage.tres" id="4_n7uvv"]
+[ext_resource type="Resource" uid="uid://fasefyfqpxoe" path="res://Resources/Tank.tres" id="5_081bt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g4v7s"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_57qmd"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qg735"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+
+[node name="CharacterBios" type="Control" unique_id=1019132201]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qs2ld")
+characters = Array[ExtResource("2_qg735")]([ExtResource("3_gjiw6"), ExtResource("4_n7uvv"), ExtResource("5_081bt")])
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=568149354]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="." unique_id=349524794]
+position = Vector2(160, 90)
+amount = 500
+emission_shape = 3
+emission_rect_extents = Vector2(160, 90)
+gravity = Vector2(5, -2)
+color = Color(0.43, 0.15910001, 0.15910001, 1)
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1405197261]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 7.0
+offset_top = 6.0
+offset_right = -10.0
+offset_bottom = -21.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer" unique_id=1133655320]
+custom_maximum_size = Vector2(80, 160)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Control" type="Control" parent="HBoxContainer/VBoxContainer" unique_id=1062060540]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer/VBoxContainer/Control" unique_id=1498425810]
+layout_mode = 0
+offset_top = 4.0
+offset_right = 40.0
+offset_bottom = 44.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_g4v7s")
+
+[node name="TextureRect" type="TextureRect" parent="HBoxContainer/VBoxContainer/Control/PanelContainer" unique_id=410334108]
+texture_filter = 1
+layout_mode = 2
+texture = ExtResource("1_xybtx")
+stretch_mode = 3
+
+[node name="ClassName" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=2012815136]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_qs2ld")
+theme_override_font_sizes/font_size = 24
+text = "Class"
+
+[node name="SmallDescription" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=1851387418]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_y1lb2")
+theme_override_font_sizes/font_size = 8
+text = "Class Description coded into the texbox.  Shouldn't be a long one, as the text following this is going in depth."
+autowrap_mode = 3
+
+[node name="PanelContainer" type="PanelContainer" parent="HBoxContainer" unique_id=1215532271]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_57qmd")
+
+[node name="LargeDescription" type="Label" parent="HBoxContainer/PanelContainer" unique_id=638334351]
+texture_filter = 1
+custom_minimum_size = Vector2(2, 2)
+custom_maximum_size = Vector2(215, 180)
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("3_y1lb2")
+theme_override_font_sizes/font_size = 12
+theme_override_styles/normal = SubResource("StyleBoxEmpty_qg735")
+text = "Larger Class Text. Explains with more detail and nuance what this class does, with scrollable pages and everything.  Ain't that just peachy?"
+autowrap_mode = 3

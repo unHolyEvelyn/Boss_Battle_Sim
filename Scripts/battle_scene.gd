@@ -29,12 +29,14 @@ var spell_detonated_this_turn: bool = false
 var is_parry_minigame_active: bool = false
 var parry_value: float = 0.0
 var parry_dir: float = 1.0
-var parry_speed: float = 180.0  # Speed the bar bounces back and forth
+var parry_speed: float = 180.0
 var parry_input_pressed: bool = false
 
 # --- CLASS STAT SYSTEM ---
 var max_hp: int = 100
+var max_mp: int = 100
 var current_hp: int = 100
+var current_mp: int = 100
 var attack_power: int = 10
 var defense_power: int = 10
 var speed: int = 10
@@ -49,10 +51,10 @@ var class_stats: Dictionary = {
 		"attack": 20,
 		"defense": 12,
 		"speed": 14,
-		"magic": 5
 	},
 	"mage": {
 		"max_hp": 70,
+		"max_mp": 100,
 		"attack": 6,
 		"defense": 5,
 		"speed": 10,
@@ -63,7 +65,6 @@ var class_stats: Dictionary = {
 		"attack": 8,
 		"defense": 20,
 		"speed": 6,
-		"magic": 5
 	}
 }
 
@@ -87,6 +88,8 @@ func _ready() -> void:
 	if Global.selected_character.to_lower() == "fighter" and player.has_node("FighterBP"):
 		var bp_system = player.get_node("FighterBP")
 		bp_system.bp_changed.connect(_on_bp_changed)
+		if bp_system.has_signal("stance_changed"):
+			bp_system.stance_changed.connect(_on_stance_changed)
 	
 	if parry_bar:
 		parry_bar.hide()
@@ -97,7 +100,6 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	# Real-time movement logic for the Tank ParryBar
 	if is_parry_minigame_active and not parry_input_pressed and parry_bar:
 		parry_value += parry_dir * parry_speed * delta
 		
@@ -110,7 +112,6 @@ func _process(delta: float) -> void:
 			
 		parry_bar.value = parry_value
 
-
 func load_character_stats() -> void:
 	var char_key = Global.selected_character.to_lower()
 	
@@ -118,17 +119,26 @@ func load_character_stats() -> void:
 		var stats = class_stats[char_key]
 		max_hp = stats["max_hp"]
 		current_hp = max_hp
-		attack_power = stats["attack"]
-		defense_power = stats["defense"]
-		speed = stats["speed"]
-		magic_power = stats["magic"]
+		
+		# .get("key", default_value) handles missing keys safely
+		max_mp = stats.get("max_mp", 0)
+		current_mp = max_mp
+		
+		attack_power = stats.get("attack", 10)
+		defense_power = stats.get("defense", 10)
+		speed = stats.get("speed", 10)
+		magic_power = stats.get("magic", 0) # Defaults to 0 if absent!
 		
 		update_hp_ui()
 
-
 func update_hp_ui() -> void:
-	class_label.text = Global.selected_character.capitalize() + " - HP " + str(current_hp) + "/" + str(max_hp)
-
+	var text = Global.selected_character.capitalize() + " - HP " + str(current_hp) + "/" + str(max_hp)
+	
+	# Shows MP if character uses Mana
+	if max_mp > 0:
+		text += " | MP " + str(current_mp) + "/" + str(max_mp)
+		
+	class_label.text = text
 
 func setup_class_buttons() -> void:
 	match Global.selected_character.to_lower():
@@ -150,23 +160,46 @@ func setup_class_buttons() -> void:
 			skill_button.text = "Parry"
 
 
-# --- DIALOGUE & BP DISPLAY HELPERS ---
+# --- DIALOGUE & BP / STANCE DISPLAY HELPERS ---
 
 func _on_bp_changed(new_bp: int) -> void:
-	update_bp_display(new_bp)
+	_update_fighter_status_display(new_bp)
 
 
-func update_bp_display(bp_value: int) -> void:
-	var formatted_bp = str(bp_value)
-	if bp_value > 0:
-		formatted_bp = "+" + str(bp_value)
-	dialogue_label.text = "FIGHTER BP: " + formatted_bp
+func _on_stance_changed(new_stance) -> void:
+	if player.has_node("FighterBP"):
+		var bp_system = player.get_node("FighterBP")
+		
+		# Show punchy announcement message when stance shifts
+		match new_stance:
+			bp_system.Stance.BERSERK:
+				dialogue_label.text = "BERSERK STANCE! ATK UP / DEF DOWN!"
+			bp_system.Stance.GUARD:
+				dialogue_label.text = "GUARD STANCE! DEFENSIVE SHIELD ACTIVE!"
+			bp_system.Stance.BALANCED:
+				dialogue_label.text = "BALANCED STANCE RESTORED."
+
+func _update_fighter_status_display(bp_value: int) -> void:
+	var bp_text = "+" + str(bp_value) if bp_value > 0 else str(bp_value)
+	var stance_text = "BALANCED"
+
+	if player.has_node("FighterBP"):
+		var bp_system = player.get_node("FighterBP")
+		if bp_system.has_method("get") and bp_system.get("current_stance") != null:
+			match bp_system.current_stance:
+				bp_system.Stance.BERSERK:
+					stance_text = "BERSERK"
+				bp_system.Stance.GUARD:
+					stance_text = "GUARD"
+				bp_system.Stance.BALANCED:
+					stance_text = "BALANCED"
+
+	dialogue_label.text = "FIGHTER BP: " + bp_text + " | STANCE: " + stance_text
 
 
 # --- INPUT HANDLING & STYLING ---
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Catch real-time confirm press during Tank Parry mini-game
 	if is_parry_minigame_active and event.is_action_pressed("confirm") and not parry_input_pressed:
 		get_viewport().set_input_as_handled()
 		parry_input_pressed = true
@@ -175,7 +208,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not action_menu.visible or is_battle_over:
 		return
 
-	# --- MAGE SPELL SUB-MENU INPUTS ---
 	if is_in_spell_menu:
 		if player.has_node("MageSpells"):
 			var mage_node: MageSpells = player.get_node("MageSpells")
@@ -200,7 +232,6 @@ func _unhandled_input(event: InputEvent) -> void:
 				exit_spell_menu()
 		return
 
-	# --- MAIN ACTION MENU INPUTS ---
 	if event.is_action_pressed("left"):
 		selected_index = (selected_index - 1 + menu_buttons.size()) % menu_buttons.size()
 		update_button_styles()
@@ -256,14 +287,31 @@ func update_spell_menu_display() -> void:
 		var mage_node: MageSpells = player.get_node("MageSpells")
 		var spell = mage_node.get_spell(selected_spell_index)
 		var total = mage_node.get_spell_count()
+		var mp_cost = spell.get("cost", 0)
+		
+		var status = ""
+		if current_mp < mp_cost:
+			status = " [NOT ENOUGH MP!]"
 		
 		dialogue_label.text = "SPELL [" + str(selected_spell_index + 1) + "/" + str(total) + "]: " + spell["name"].to_upper() + "\n" + spell["desc"]
 
 func cast_selected_spell(spell: Dictionary) -> void:
+	var mp_cost = spell.get("cost", 0)
+	
+	# Block casting if insufficient MP
+	if current_mp < mp_cost:
+		dialogue_label.text = "NOT ENOUGH MANA!"
+		is_in_spell_menu = true
+		return
+	
 	_play_confirm_sound()
 	is_in_spell_menu = false
 	action_menu.hide()
-
+	
+	# Deduct Mana and update HUD
+	current_mp -= mp_cost
+	update_hp_ui()
+	
 	var mage_node: MageSpells = player.get_node("MageSpells") if player.has_node("MageSpells") else null
 
 	match spell["type"]:
@@ -323,7 +371,6 @@ func start_player_turn() -> void:
 	is_defending = false
 	spell_detonated_this_turn = false
 	
-	# Update button text based on active class features (e.g. Tank Counter Strike)
 	setup_class_buttons()
 	
 	# 1. Fighter BP Debt check
@@ -336,10 +383,18 @@ func start_player_turn() -> void:
 			end_player_turn()
 			return
 		else:
-			update_bp_display(bp_system.current_bp)
+			_update_fighter_status_display(bp_system.current_bp)
 			
-	# 2. Mage Delayed Spell Processing
+	# 2. Mage Delayed Spell Processing & Passive Mana Regen
 	elif Global.selected_character.to_lower() == "mage" and player.has_node("MageSpells"):
+		var regen_text = ""
+		# Passive MP regen
+		if current_mp < max_mp:
+			var amount_gained = min(current_mp + 10, max_mp) - current_mp
+			current_mp += amount_gained
+			update_hp_ui()
+			regen_text = " (+" + str(amount_gained) + " MP REGEN!)"
+		
 		var mage_node: MageSpells = player.get_node("MageSpells")
 		var detonated_list = mage_node.process_turn_tick()
 		
@@ -358,7 +413,7 @@ func start_player_turn() -> void:
 				if is_battle_over:
 					return
 		
-		dialogue_label.text = "MAGE TURN!"
+		dialogue_label.text = "MAGE TURN! " + regen_text
 	else:
 		dialogue_label.text = Global.selected_character.to_upper() + " TURN!"
 
@@ -389,7 +444,6 @@ func start_boss_turn() -> void:
 	
 	await get_tree().create_timer(0.6).timeout
 	
-	# --- FETCH BOSS ATTACK & CRIT DATA ---
 	var attack_info = boss.get_attack_damage() if boss.has_method("get_attack_damage") else {"damage": 25, "is_crit": false}
 	var raw_boss_damage: int = attack_info["damage"]
 	var is_crit: bool = attack_info["is_crit"]
@@ -399,9 +453,7 @@ func start_boss_turn() -> void:
 
 	var tank_node: TankParry = player.get_node("TankParry") if player.has_node("TankParry") else null
 
-	# --- ACTIVE TANK PARRY MINI-GAME ---
 	if tank_node and tank_node.is_parry_active:
-		# 1. Reset values and reveal the bar on screen
 		if parry_bar:
 			parry_bar.value = parry_bar.min_value
 			parry_value = parry_bar.min_value
@@ -411,13 +463,9 @@ func start_boss_turn() -> void:
 		parry_input_pressed = false
 		dialogue_label.text = "GET READY..."
 		
-		# 2. Delay before movement begins
 		await get_tree().create_timer(0.5).timeout
-		
-		# --- RANDOMIZE SPEED EACH PARRY ATTEMPT ---
 		parry_speed = randf_range(150.0, 240.0)
 
-		# 3. Start active movement phase
 		is_parry_minigame_active = true
 		dialogue_label.text = "TIME YOUR PARRY!"
 
@@ -428,12 +476,10 @@ func start_boss_turn() -> void:
 			await get_tree().process_frame
 			timer += get_process_delta_time()
 
-		# 4. Stop movement and hide the bar
 		is_parry_minigame_active = false
 		if parry_bar:
 			parry_bar.hide()
 
-		# 5. Evaluate accuracy
 		var center_target = (parry_bar.max_value - parry_bar.min_value) / 2.0 if parry_bar else 50.0
 		var result = tank_node.evaluate_timing(parry_value, center_target, 10.0, 25.0)
 
@@ -452,11 +498,19 @@ func start_boss_turn() -> void:
 		tank_node.reset_parry_stance()
 		await get_tree().create_timer(0.8).timeout
 
-	# --- STANDARD GUARD ---
 	elif is_defending:
 		mitigated_damage = max(1, int(mitigated_damage * 0.5))
+		
+	# --- STANCE INCOMING DAMAGE MODIFIER (FIGHTER) ---
+	if Global.selected_character.to_lower() == "fighter" and player.has_node("FighterBP"):
+		var bp_system = player.get_node("FighterBP")
+		if bp_system.has_method("get") and bp_system.get("current_stance") != null:
+			match bp_system.current_stance:
+				bp_system.Stance.BERSERK:
+					mitigated_damage = int(mitigated_damage * 1.25)
+				bp_system.Stance.GUARD:
+					mitigated_damage = int(mitigated_damage * 0.50)
 
-	# Boss animation execution
 	if boss.has_method("play_and_wait"):
 		await boss.play_and_wait("attack")
 	else:
@@ -471,7 +525,6 @@ func start_boss_turn() -> void:
 	elif player.has_method("play_hurt"):
 		player.play_hurt()
 
-	# Display Critical status in dialogue when damage is dealt
 	if mitigated_damage > 0:
 		if is_crit and not (tank_node and tank_node.is_parry_active):
 			dialogue_label.text = "CRITICAL HIT! BOSS DEALT " + str(mitigated_damage) + " DAMAGE!"
@@ -507,7 +560,6 @@ func _on_attack_button_pressed() -> void:
 
 	var base_hit = attack_power
 
-	# Check for Tank Counter Strike boost
 	if Global.selected_character.to_lower() == "tank" and player.has_node("TankParry"):
 		var tank_node: TankParry = player.get_node("TankParry")
 		var multiplier = tank_node.consume_counter_bonus()
@@ -526,6 +578,13 @@ func _on_attack_button_pressed() -> void:
 		var combo_multiplier: float = 1.0 + (i * 0.25)
 		var hit_damage: int = int(base_hit * combo_multiplier)
 		
+		if Global.selected_character.to_lower() == "fighter" and player.has_node("FighterBP"):
+			var bp_system = player.get_node("FighterBP")
+			if bp_system.has_method("get") and bp_system.get("current_stance") != null:
+				match bp_system.current_stance:
+					bp_system.Stance.BERSERK:
+						hit_damage = int(hit_damage * 1.5)
+
 		if boss.has_method("take_damage"):
 			boss.take_damage(hit_damage)
 		elif boss.has_method("play_hurt"):
@@ -549,10 +608,17 @@ func _on_defend_button_pressed() -> void:
 		"fighter":
 			if player.has_node("FighterBP"):
 				var bp_system = player.get_node("FighterBP")
+				var old_stance = bp_system.current_stance
 				bp_system.perform_default()
-				dialogue_label.text = "DEFAULT! +1 BP STORED (BP: " + str(bp_system.current_bp) + ")"
+				
+				# Only overwrite text if stance DID NOT change
+				if old_stance == bp_system.current_stance:
+					_update_fighter_status_display(bp_system.current_bp)
 		"mage":
-			dialogue_label.text = "MAGE GUARDS! INCOMING DAMAGE HALVED."
+			var regen = 15
+			current_mp = min(current_mp + regen, max_mp)
+			update_hp_ui()
+			dialogue_label.text = "MAGE GUARDS AND RECOVERS +" + str(regen) + " MP!"
 		"tank":
 			dialogue_label.text = "IRON GUARD! TANK FORTIFIES DEFENSES."
 
@@ -565,9 +631,13 @@ func _on_skill_button_pressed() -> void:
 		"fighter":
 			if player.has_node("FighterBP"):
 				var bp_system = player.get_node("FighterBP")
+				var old_stance = bp_system.current_stance
 				if bp_system.try_brave():
 					attack_button.text = "Attack (" + str(bp_system.queued_actions) + "x)"
-					dialogue_label.text = "BRAVE! Queued Attacks: " + str(bp_system.queued_actions) + " | BP: " + str(bp_system.current_bp)
+					
+					# Only overwrite text if stance DID NOT change
+					if old_stance == bp_system.current_stance:
+						_update_fighter_status_display(bp_system.current_bp)
 				else:
 					dialogue_label.text = "CANNOT BRAVE! Limit Reached."
 
@@ -595,7 +665,6 @@ func _on_boss_defeated() -> void:
 	dialogue_label.text = "VICTORY! YOU DEFEATED THE BOSS!"
 	print("BATTLE WON!")
 	
-	# Pause to let the victory text sink in, then change scenes
 	await get_tree().create_timer(2.5).timeout
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 

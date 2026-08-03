@@ -380,7 +380,7 @@ color = Color(0, 0, 0, 1)
 
 [node name="CPUParticles2D" type="CPUParticles2D" parent="BackgroundLayer" unique_id=473932481]
 position = Vector2(480, 90)
-amount = 500
+amount = 5000
 randomness = 1.0
 fixed_fps = 240
 emission_shape = 3

@@ -9,6 +9,7 @@ var mage_spells: Array[Dictionary] = [
 		"desc": "Fast spell. Chains with detonating spells for 1.75x damage.",
 		"type": "instant_attack",
 		"power": 1.0,
+		"cost": 15,
 		"delay": 0
 	},
 	{
@@ -16,6 +17,7 @@ var mage_spells: Array[Dictionary] = [
 		"desc": "Brewing spell. Detonates in 2 turns for heavy damage.",
 		"type": "delayed_attack",
 		"power": 3.0,
+		"cost": 30,
 		"delay": 2
 	},
 	{
@@ -23,6 +25,7 @@ var mage_spells: Array[Dictionary] = [
 		"desc": "High-risk chant. Detonates in 3 turns for massive damage.",
 		"type": "delayed_attack",
 		"power": 5.0,
+		"cost": 50,
 		"delay": 3
 	},
 	{
@@ -30,6 +33,7 @@ var mage_spells: Array[Dictionary] = [
 		"desc": "Restores HP based on Magic Power.",
 		"type": "heal",
 		"power": 1.0,
+		"cost": 25,
 		"delay": 0
 	},
 	{
@@ -37,6 +41,7 @@ var mage_spells: Array[Dictionary] = [
 		"desc": "Fortifies defenses, mitigating 60% of incoming damage.",
 		"type": "barrier",
 		"power": 0.0,
+		"cost": 20,
 		"delay": 0
 	},
 	{
@@ -44,6 +49,7 @@ var mage_spells: Array[Dictionary] = [
 		"desc": "Empowers the next delayed spell cast by +50% damage.",
 		"type": "buff",
 		"power": 0.0,
+		"cost": 15,
 		"delay": 0
 	}
 ]

@@ -2,6 +2,7 @@ extends Control
 
 # Direct paths matching your MainMenu scene tree
 @onready var character_select_btn: Button = $VBoxContainer/CharacterSelectButton
+@onready var bios_btn: Button = $VBoxContainer/BiosButton
 @onready var options_btn: Button = $VBoxContainer/OptionsButton
 @onready var quit_btn: Button = $VBoxContainer/QuitButton
 
@@ -14,6 +15,7 @@ extends Control
 
 @onready var menu_buttons: Array[Button] = [
 	character_select_btn,
+	bios_btn,
 	options_btn,
 	quit_btn
 ]
@@ -74,8 +76,10 @@ func trigger_selected_action() -> void:
 		0:
 			_on_character_select_button_pressed()
 		1:
-			_on_options_button_pressed()
+			_on_bios_button_pressed()
 		2:
+			_on_options_button_pressed()
+		3:
 			_on_quit_button_pressed()
 
 func update_button_styles() -> void:
@@ -102,6 +106,9 @@ func update_button_styles() -> void:
 
 func _on_character_select_button_pressed() -> void:
 	get_tree().change_scene_to_file("res://Scenes/character_select.tscn")
+
+func _on_bios_button_pressed() -> void:
+	get_tree().change_scene_to_file("res://Scenes/character_bios.tscn")
 
 func _on_options_button_pressed() -> void:
 	if settings_menu:
