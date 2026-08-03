@@ -12,7 +12,7 @@ I KNOW.  I'm trying to take out any remnant of it having worked and move forward
 
 ## 🎮 Installation & Running the Game
 
-### 🪟 Windows
+### 🪟 Windows 
 1. Download and extract the **Windows** `.zip` from the [Latest Release](../../releases).
 2. Run `Boss_Fight_Sim.exe`.
 3. (Optional) Keep the .pak bundled in the folder!
