@@ -23,6 +23,11 @@ A turn-based tactical combat game built in Godot 4.
    * Click **Open** again in the security prompt window.  
    *(You only need to do this once! Future launches work via normal double-click).*
 
+A permissions issue stemming from me compiling this game on Windows occurs, so these next few steps will allow you to run the program as an executable.
+1. Open your terminal and use the command cd to go to the directory the game is stored (or open the terminal in the folder).
+2. type in `chmod +x Boss_Fight_Sim[VERSION_MATCH_HERE]`
+3. The game's icon should become the terminal icon.  Feel free to create a shortcut as needed.
+
 Alternatively Mac users are free to pay for the 100 dollar subscription license it would cost me to bypass this, but for a free poorly made minigame I think you can jump this hurdle.
 
 ### 🐧 Linux
