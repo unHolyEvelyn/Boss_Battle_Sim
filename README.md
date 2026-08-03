@@ -5,6 +5,9 @@ Boss Battle Simulator game, where 3 classes of heroes fight a powerful boss with
 
 A turn-based tactical combat game built in Godot 4.
 
+## STOP REPORTING THE MOUSE DOESN'T WORK
+I KNOW.  I'm trying to take out any remnant of it having worked and move forward with 0 mouse functionality so there's less UI confusion.  My plan was always to make it keyboard or controller only, like most RPGs.
+
 ---
 
 ## 🎮 Installation & Running the Game
