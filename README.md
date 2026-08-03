@@ -22,6 +22,7 @@ A turn-based tactical combat game built in Godot 4.
    * Select **Open** from the menu.
    * Click **Open** again in the security prompt window.  
    *(You only need to do this once! Future launches work via normal double-click).*
+
 Alternatively Mac users are free to pay for the 100 dollar subscription license it would cost me to bypass this, but for a free poorly made minigame I think you can jump this hurdle.
 
 ### 🐧 Linux
