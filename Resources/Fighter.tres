@@ -8,5 +8,10 @@ script = ExtResource("1_kc5vq")
 character_name = "Fighter"
 portrait = ExtResource("1_6jtfj")
 short_description = "Balanced brawler. Stacks actions to unleash powerful strikes."
-detailed_pages = Array[String](["The Fighter uses a Battle Point system called Brave/Default.  Default to stack Battle Points and Brave to use them, or use Brave without Defaulting, at the cost of your own turns.", "It's wise to Default until you've stacked 3x, and use them all at once, unless you're sure you can stay alive through the devastating blows by the boss.", "Track your own HP.  Typically once the Fighter's health is low, in ideal play, the Boss is low too and Braving without Defaulting is safe."])
+detailed_pages = Array[String](["The Fighter uses a Battle Point system called Brave/Default.  Default to stack Battle Points and Brave to use them, or use Brave without Defaulting, at the cost of your own turns.", "It's wise to Default until you've stacked 3x, and use them all at once, unless you're sure you can stay alive through the devastating blows by the boss.", "The Fighter also has 3 stances.
+- Balanced: no stat changes.
+- Berserk: Boosted attack at the cost of defense.
+- Guard: 25% more defense.
+Berserk activates with multiple uses of Default.
+Guard activates when your BP goes negative.", "Track your own HP.  Typically once the Fighter's health is low, in ideal play, the Boss is low too and Braving without Defaulting is safe."])
 metadata/_custom_type_script = "uid://b2jlhgd38o078"
