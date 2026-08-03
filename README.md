@@ -28,6 +28,21 @@ A permissions issue stemming from me compiling this game on Windows occurs, so t
 2. type in `chmod +x Boss_Fight_Sim`
 3. The game's icon should become the terminal icon.  Feel free to create a shortcut as needed.
 
+One of my beta testers is concerned that Mac Users are mouth breathers (and honestly for the price you paid for the world's worst OS and hardware you probably ARE) but here, since you need your hand held as a widdle baby:
+1. Download the file.
+2. Unzip the file.
+3. Find the file that's supposed to be the executable on your dogshit system.
+4. Right click it.
+5. Select "Show package contents".
+6. Open the "Contents" folder.
+7. Open the MacOS folder.
+8. Open your terminal and type the executable command WITHOUT `Boss Fight Sim`.
+9. Drag that into your terminal (because Apple doesn't know the concept of "right click > open in terminal").
+10. Hit your return key.
+11. Double click to open.
+
+Now that you figured out how to use your own Operating System, promptly sell it to the nearest for as high a price as you can and buy a real computer.
+
 Alternatively Mac users are free to pay for the 100 dollar subscription license it would cost me to bypass this, but for a free poorly made minigame I think you can jump this hurdle.
 
 ### 🐧 Linux
