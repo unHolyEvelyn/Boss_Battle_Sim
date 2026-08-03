@@ -41,7 +41,7 @@ One of my beta testers is concerned that Mac Users are mouth breathers (and hone
 10. Hit your return key.
 11. Double click to open.
 
-Now that you figured out how to use your own Operating System, promptly sell it to the nearest for as high a price as you can and buy a real computer.
+Now that you figured out how to use your own Operating System, promptly sell it to the nearest fool for as high a price as you can and buy a real computer.
 
 Alternatively Mac users are free to pay for the 100 dollar subscription license it would cost me to bypass this, but for a free poorly made minigame I think you can jump this hurdle.
 
