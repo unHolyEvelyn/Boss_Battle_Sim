@@ -14,7 +14,7 @@ jobs:
           curl -H "Content-Type: application/json" \
                -X POST \
                -d '{
-                     "thread_name": "Test Release Discussion",
-                     "content": "🚀 **Test Release Published!**"
+                     "thread_name": "Boss Fight Simulator v1.3.0 Discussion",
+                     "content": "🚀 **Boss Fight Simulator v1.3.0 Published!**\n\nCheck out the release notes on GitHub!"
                    }' \
-               ${{ secrets.DISCORD_WEBHOOK }}
+               "${{ secrets.DISCORD_WEBHOOK }}?wait=true"
