@@ -62,6 +62,8 @@ Alternatively Mac users are free to pay for the 100 dollar subscription license 
 * **Hard Mode Progression**
   * Added a Hard Mode challenge toggle for all heroes!
   * Hard Mode unlocks per character once you reach **5 Victories** on standard difficulty.
+* **Mage Class Buffs**
+  * Increased base Health and Defense stats for the Mage to improve solo viability.
 * **Save Data & Persistent Progression**
   * Player stats and win counts now automatically save to disk (`user://save_data.cfg`) and persist across sessions.
 * **UI & Visual Refresh**
