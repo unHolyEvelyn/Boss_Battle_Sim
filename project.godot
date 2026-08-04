@@ -26,6 +26,7 @@ buses/default_bus_layout="uid://b0asyeb6j6lf2"
 Global="*uid://dymafhmxppey0"
 MusicManager="*uid://d3ng2y3bmh3gq"
 SettingsManager="*uid://bj2u40qdvl65h"
+SaveManager="*uid://n77it1m41a6x"
 
 [display]
 

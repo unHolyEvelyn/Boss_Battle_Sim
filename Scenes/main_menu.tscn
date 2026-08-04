@@ -262,6 +262,7 @@ horizontal_alignment = 1
 [node name="ParticleSlider" type="HSlider" parent="SettingsMenu/VBoxContainer" unique_id=1658522680]
 layout_mode = 2
 theme_override_styles/slider = SubResource("StyleBoxFlat_vr1f0")
+step = 5.0
 
 [node name="WindowOption" type="OptionButton" parent="SettingsMenu/VBoxContainer" unique_id=976366666]
 layout_mode = 2

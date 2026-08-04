@@ -17,29 +17,6 @@ border_width_right = 2
 border_width_bottom = 2
 border_color = Color(1, 1, 1, 1)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_krxhl"]
-bg_color = Color(0, 0, 0, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
-expand_margin_left = 2.0
-expand_margin_top = 2.0
-expand_margin_right = 2.0
-expand_margin_bottom = 2.0
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_72d1u"]
-content_margin_left = 2.0
-content_margin_top = 2.0
-content_margin_right = 2.0
-bg_color = Color(0, 0, 0, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(1, 1, 1, 1)
-
 [node name="CharacterSelect" type="Control" unique_id=1029808181]
 layout_mode = 3
 anchors_preset = 15
@@ -92,29 +69,59 @@ offset_bottom = 11.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Fighter" type="PanelContainer" parent="PortraitContainer" unique_id=658502184]
+[node name="FighterVBox" type="VBoxContainer" parent="PortraitContainer" unique_id=1889336247]
+layout_mode = 2
+
+[node name="FighterWins" type="Label" parent="PortraitContainer/FighterVBox" unique_id=1740633395]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_krxhl")
+theme_override_font_sizes/font_size = 8
+text = "Wins: 0"
+
+[node name="Fighter" type="PanelContainer" parent="PortraitContainer/FighterVBox" unique_id=658502184]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_yf5fn")
 
-[node name="TextureButton" type="TextureButton" parent="PortraitContainer/Fighter" unique_id=2042749107]
+[node name="TextureButton" type="TextureButton" parent="PortraitContainer/FighterVBox/Fighter" unique_id=2042749107]
 texture_filter = 1
 layout_mode = 2
 texture_normal = ExtResource("2_2b87j")
 
-[node name="Mage" type="PanelContainer" parent="PortraitContainer" unique_id=702785512]
+[node name="MageVBox" type="VBoxContainer" parent="PortraitContainer" unique_id=969696457]
+layout_mode = 2
+
+[node name="MageWins" type="Label" parent="PortraitContainer/MageVBox" unique_id=1135704697]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_krxhl")
+theme_override_font_sizes/font_size = 8
+text = "Wins: 0"
+
+[node name="Mage" type="PanelContainer" parent="PortraitContainer/MageVBox" unique_id=702785512]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_yf5fn")
 
-[node name="TextureButton" type="TextureButton" parent="PortraitContainer/Mage" unique_id=1952836729]
+[node name="TextureButton" type="TextureButton" parent="PortraitContainer/MageVBox/Mage" unique_id=1952836729]
 texture_filter = 1
 layout_mode = 2
 texture_normal = ExtResource("3_krxhl")
 
-[node name="Tank" type="PanelContainer" parent="PortraitContainer" unique_id=1550912620]
+[node name="TankVBox" type="VBoxContainer" parent="PortraitContainer" unique_id=174811819]
+layout_mode = 2
+
+[node name="TankWins" type="Label" parent="PortraitContainer/TankVBox" unique_id=1200037094]
+texture_filter = 1
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_krxhl")
+theme_override_font_sizes/font_size = 8
+text = "Wins: 0"
+
+[node name="Tank" type="PanelContainer" parent="PortraitContainer/TankVBox" unique_id=1550912620]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_yf5fn")
 
-[node name="TextureButton" type="TextureButton" parent="PortraitContainer/Tank" unique_id=1784910049]
+[node name="TextureButton" type="TextureButton" parent="PortraitContainer/TankVBox/Tank" unique_id=1784910049]
 texture_filter = 1
 layout_mode = 2
 texture_normal = ExtResource("4_72d1u")
@@ -145,29 +152,19 @@ theme_override_font_sizes/font_size = 8
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="StartButton" type="Button" parent="." unique_id=535513804]
-layout_mode = 0
-offset_left = 150.0
-offset_top = 160.0
-offset_right = 158.0
-offset_bottom = 168.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_fonts/font = ExtResource("6_krxhl")
-theme_override_font_sizes/font_size = 8
-theme_override_styles/normal = SubResource("StyleBoxFlat_krxhl")
-text = "Start"
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=963617632]
+layout_mode = 2
+size_flags_horizontal = 4
 
-[node name="BackButton" type="Button" parent="." unique_id=229493481]
-layout_mode = 0
-offset_left = 9.0
-offset_top = 160.0
-offset_right = 38.0
-offset_bottom = 177.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+[node name="CheckBox" type="CheckBox" parent="VBoxContainer/HBoxContainer" unique_id=1566407450]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/HBoxContainer" unique_id=1206022800]
+texture_filter = 1
+layout_mode = 2
 theme_override_fonts/font = ExtResource("6_krxhl")
-theme_override_font_sizes/font_size = 8
-theme_override_styles/normal = SubResource("StyleBoxFlat_72d1u")
-text = "Back"
+theme_override_font_sizes/font_size = 6
+text = "Wins needed yada yada text"
 
 [node name="HoverSound" type="AudioStreamPlayer" parent="." unique_id=1327791925]
 stream = ExtResource("7_d1kp4")
@@ -176,6 +173,3 @@ bus = &"SFX"
 [node name="ConfirmSound" type="AudioStreamPlayer" parent="." unique_id=117002837]
 stream = ExtResource("8_brbi3")
 bus = &"SFX"
-
-[connection signal="pressed" from="StartButton" to="." method="_on_start_button_pressed"]
-[connection signal="pressed" from="BackButton" to="." method="_on_back_button_pressed"]

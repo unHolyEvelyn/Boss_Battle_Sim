@@ -18,6 +18,8 @@ signal boss_defeated
 
 
 func _ready() -> void:
+	var diff = Global.get_active_difficulty()
+	max_hp = diff["boss_hp"]
 	current_hp = max_hp
 	# Automatically start the looping idle stance when the battle loads
 	play_idle()

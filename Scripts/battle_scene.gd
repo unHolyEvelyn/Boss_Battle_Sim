@@ -13,8 +13,8 @@ extends Node2D
 
 @onready var parry_bar: TextureProgressBar = $UILayer/ParryBar
 
-@onready var hover_sound: AudioStreamPlayer = $HoverSound
-@onready var confirm_sound: AudioStreamPlayer = $ConfirmSound
+@onready var hover_sound: AudioStreamPlayer = $HoverSound if has_node("HoverSound") else null
+@onready var confirm_sound: AudioStreamPlayer = $ConfirmSound if has_node("ConfirmSound") else null
 
 # --- CUSTOM MENU NAVIGATION ---
 var menu_buttons: Array[Button] = []
@@ -32,7 +32,8 @@ var parry_dir: float = 1.0
 var parry_speed: float = 180.0
 var parry_input_pressed: bool = false
 
-# --- CLASS STAT SYSTEM ---
+# --- DIFFICULTY & STATS ---
+var difficulty: Dictionary = {}
 var max_hp: int = 100
 var max_mp: int = 100
 var current_hp: int = 100
@@ -53,10 +54,10 @@ var class_stats: Dictionary = {
 		"speed": 14,
 	},
 	"mage": {
-		"max_hp": 70,
+		"max_hp": 90,
 		"max_mp": 100,
 		"attack": 6,
-		"defense": 5,
+		"defense": 8,
 		"speed": 10,
 		"magic": 22
 	},
@@ -72,18 +73,23 @@ var class_stats: Dictionary = {
 func _ready() -> void:
 	MusicManager.stop_music()
 	
-	setup_button_hover_sounds(self)
+	# Fetch current difficulty dictionary from Global
+	difficulty = Global.get_active_difficulty()
 	
 	load_character_stats()
 	
 	menu_buttons = [attack_button, defend_button, skill_button]
 	
-	attack_button.pressed.connect(_on_attack_button_pressed)
-	defend_button.pressed.connect(_on_defend_button_pressed)
-	skill_button.pressed.connect(_on_skill_button_pressed)
-	
+	for btn in menu_buttons:
+		btn.focus_mode = Control.FOCUS_NONE
+		btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 	if boss.has_signal("boss_defeated"):
 		boss.boss_defeated.connect(_on_boss_defeated)
+	
+	# Apply Hard Mode HP multiplier to Boss if Boss has max_hp
+	if Global.is_hard_mode and boss.has_method("set_max_hp"):
+		boss.set_max_hp(int(difficulty["boss_hp"]))
 	
 	if Global.selected_character.to_lower() == "fighter" and player.has_node("FighterBP"):
 		var bp_system = player.get_node("FighterBP")
@@ -117,28 +123,31 @@ func load_character_stats() -> void:
 	
 	if class_stats.has(char_key):
 		var stats = class_stats[char_key]
-		max_hp = stats["max_hp"]
+		
+		# Apply Hard Mode HP Multiplier
+		var hp_mult: float = difficulty.get("hero_hp_mult", 1.0)
+		max_hp = int(stats["max_hp"] * hp_mult)
 		current_hp = max_hp
 		
-		# .get("key", default_value) handles missing keys safely
 		max_mp = stats.get("max_mp", 0)
 		current_mp = max_mp
 		
 		attack_power = stats.get("attack", 10)
 		defense_power = stats.get("defense", 10)
 		speed = stats.get("speed", 10)
-		magic_power = stats.get("magic", 0) # Defaults to 0 if absent!
+		magic_power = stats.get("magic", 0)
 		
 		update_hp_ui()
+		print("Loaded ", char_key.capitalize(), " | HP: ", max_hp, " (Mult: ", hp_mult, ")")
 
 func update_hp_ui() -> void:
 	var text = Global.selected_character.capitalize() + " - HP " + str(current_hp) + "/" + str(max_hp)
 	
-	# Shows MP if character uses Mana
 	if max_mp > 0:
 		text += " | MP " + str(current_mp) + "/" + str(max_mp)
 		
 	class_label.text = text
+
 
 func setup_class_buttons() -> void:
 	match Global.selected_character.to_lower():
@@ -170,7 +179,6 @@ func _on_stance_changed(new_stance) -> void:
 	if player.has_node("FighterBP"):
 		var bp_system = player.get_node("FighterBP")
 		
-		# Show punchy announcement message when stance shifts
 		match new_stance:
 			bp_system.Stance.BERSERK:
 				dialogue_label.text = "BERSERK STANCE! ATK UP / DEF DOWN!"
@@ -178,6 +186,7 @@ func _on_stance_changed(new_stance) -> void:
 				dialogue_label.text = "GUARD STANCE! DEFENSIVE SHIELD ACTIVE!"
 			bp_system.Stance.BALANCED:
 				dialogue_label.text = "BALANCED STANCE RESTORED."
+
 
 func _update_fighter_status_display(bp_value: int) -> void:
 	var bp_text = "+" + str(bp_value) if bp_value > 0 else str(bp_value)
@@ -208,17 +217,22 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not action_menu.visible or is_battle_over:
 		return
 
+	if event is InputEventJoypadMotion:
+		return
+
 	if is_in_spell_menu:
 		if player.has_node("MageSpells"):
 			var mage_node: MageSpells = player.get_node("MageSpells")
 			var total_spells = mage_node.get_spell_count()
 
 			if event.is_action_pressed("right") or event.is_action_pressed("down"):
+				get_viewport().set_input_as_handled()
 				selected_spell_index = (selected_spell_index + 1) % total_spells
 				_on_button_hovered()
 				update_spell_menu_display()
 
 			elif event.is_action_pressed("left") or event.is_action_pressed("up"):
+				get_viewport().set_input_as_handled()
 				selected_spell_index = (selected_spell_index - 1 + total_spells) % total_spells
 				_on_button_hovered()
 				update_spell_menu_display()
@@ -227,25 +241,33 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				cast_selected_spell(mage_node.get_spell(selected_spell_index))
 
-			elif event.is_action_pressed("cancel"):
+			elif event.is_action_pressed("cancel") or event.is_action_pressed("ui_cancel"):
 				get_viewport().set_input_as_handled()
 				exit_spell_menu()
 		return
 
 	if event.is_action_pressed("left"):
+		get_viewport().set_input_as_handled()
 		selected_index = (selected_index - 1 + menu_buttons.size()) % menu_buttons.size()
 		update_button_styles()
 		_on_button_hovered()
 
 	elif event.is_action_pressed("right"):
+		get_viewport().set_input_as_handled()
 		selected_index = (selected_index + 1) % menu_buttons.size()
 		update_button_styles()
 		_on_button_hovered()
 
 	elif event.is_action_pressed("confirm"):
 		get_viewport().set_input_as_handled()
-		_play_confirm_sound()
-		menu_buttons[selected_index].emit_signal("pressed")
+		trigger_selected_action()
+
+
+func trigger_selected_action() -> void:
+	match selected_index:
+		0: _on_attack_button_pressed()
+		1: _on_defend_button_pressed()
+		2: _on_skill_button_pressed()
 
 
 func update_button_styles() -> void:
@@ -278,9 +300,11 @@ func open_spell_menu() -> void:
 	selected_spell_index = 0
 	update_spell_menu_display()
 
+
 func exit_spell_menu() -> void:
 	is_in_spell_menu = false
 	dialogue_label.text = "MAGE TURN!"
+
 
 func update_spell_menu_display() -> void:
 	if player.has_node("MageSpells"):
@@ -292,13 +316,18 @@ func update_spell_menu_display() -> void:
 		var status = ""
 		if current_mp < mp_cost:
 			status = " [NOT ENOUGH MP!]"
+			
+		var hp_cost_text = ""
+		if Global.is_hard_mode and difficulty["hero_tweaks"]["mage_hp_cost_percent"] > 0.0:
+			var hp_drain = int(max_hp * difficulty["hero_tweaks"]["mage_hp_cost_percent"])
+			hp_cost_text = " (Drains " + str(hp_drain) + " HP)"
 		
-		dialogue_label.text = "SPELL [" + str(selected_spell_index + 1) + "/" + str(total) + "]: " + spell["name"].to_upper() + "\n" + spell["desc"]
+		dialogue_label.text = "SPELL [" + str(selected_spell_index + 1) + "/" + str(total) + "]: " + spell["name"].to_upper() + status + hp_cost_text + "\n" + spell["desc"]
+
 
 func cast_selected_spell(spell: Dictionary) -> void:
 	var mp_cost = spell.get("cost", 0)
 	
-	# Block casting if insufficient MP
 	if current_mp < mp_cost:
 		dialogue_label.text = "NOT ENOUGH MANA!"
 		is_in_spell_menu = true
@@ -308,8 +337,15 @@ func cast_selected_spell(spell: Dictionary) -> void:
 	is_in_spell_menu = false
 	action_menu.hide()
 	
-	# Deduct Mana and update HUD
 	current_mp -= mp_cost
+	
+	# --- HARD MODE MAGE HP COST TWEAK ---
+	if Global.is_hard_mode and difficulty["hero_tweaks"]["mage_hp_cost_percent"] > 0.0:
+		var hp_drain = int(max_hp * difficulty["hero_tweaks"]["mage_hp_cost_percent"])
+		current_hp = max(1, current_hp - hp_drain)
+		dialogue_label.text = "OVERCHARGED CAST! (-" + str(hp_drain) + " HP)"
+		await get_tree().create_timer(0.4).timeout
+
 	update_hp_ui()
 	
 	var mage_node: MageSpells = player.get_node("MageSpells") if player.has_node("MageSpells") else null
@@ -373,7 +409,6 @@ func start_player_turn() -> void:
 	
 	setup_class_buttons()
 	
-	# 1. Fighter BP Debt check
 	if Global.selected_character.to_lower() == "fighter" and player.has_node("FighterBP"):
 		var bp_system = player.get_node("FighterBP")
 		if bp_system.is_in_debt():
@@ -385,10 +420,8 @@ func start_player_turn() -> void:
 		else:
 			_update_fighter_status_display(bp_system.current_bp)
 			
-	# 2. Mage Delayed Spell Processing & Passive Mana Regen
 	elif Global.selected_character.to_lower() == "mage" and player.has_node("MageSpells"):
 		var regen_text = ""
-		# Passive MP regen
 		if current_mp < max_mp:
 			var amount_gained = min(current_mp + 10, max_mp) - current_mp
 			current_mp += amount_gained
@@ -413,7 +446,7 @@ func start_player_turn() -> void:
 				if is_battle_over:
 					return
 		
-		dialogue_label.text = "MAGE TURN! " + regen_text
+		dialogue_label.text = "MAGE TURN!" + regen_text
 	else:
 		dialogue_label.text = Global.selected_character.to_upper() + " TURN!"
 
@@ -445,7 +478,9 @@ func start_boss_turn() -> void:
 	await get_tree().create_timer(0.6).timeout
 	
 	var attack_info = boss.get_attack_damage() if boss.has_method("get_attack_damage") else {"damage": 25, "is_crit": false}
-	var raw_boss_damage: int = attack_info["damage"]
+	
+	# Apply Hard Mode Boss Damage Multiplier
+	var raw_boss_damage: int = int(attack_info["damage"] * difficulty.get("boss_damage_mult", 1.0))
 	var is_crit: bool = attack_info["is_crit"]
 	
 	@warning_ignore("integer_division")
@@ -464,13 +499,16 @@ func start_boss_turn() -> void:
 		dialogue_label.text = "GET READY..."
 		
 		await get_tree().create_timer(0.5).timeout
-		parry_speed = randf_range(150.0, 240.0)
+		
+		# Apply Hard Mode Parry Bar Speed Boost
+		var speed_mult = difficulty.get("parry_speed_mult", 1.0)
+		parry_speed = randf_range(150.0, 240.0) * speed_mult
 
 		is_parry_minigame_active = true
 		dialogue_label.text = "TIME YOUR PARRY!"
 
 		var timer = 0.0
-		var max_parry_time = 1.8
+		var max_parry_time = 1.8 / speed_mult
 		
 		while timer < max_parry_time and not parry_input_pressed:
 			await get_tree().process_frame
@@ -487,7 +525,19 @@ func start_boss_turn() -> void:
 			TankParry.ParryResult.PERFECT:
 				_play_confirm_sound()
 				mitigated_damage = 0
-				dialogue_label.text = "PERFECT PARRY! DAMAGE NEGATED!"
+				
+				# --- HARD MODE TANK REFLECT TWEAK ---
+				var reflect_pct = difficulty["hero_tweaks"]["tank_parry_reflect_percent"]
+				if Global.is_hard_mode and reflect_pct > 0.0:
+					var reflected_damage = int(raw_boss_damage * reflect_pct)
+					dialogue_label.text = "PERFECT PARRY! REFLECTED " + str(reflected_damage) + " DAMAGE!"
+					if boss.has_method("take_damage"):
+						boss.take_damage(reflected_damage)
+					elif boss.has_method("play_hurt"):
+						boss.play_hurt()
+				else:
+					dialogue_label.text = "PERFECT PARRY! DAMAGE NEGATED!"
+
 			TankParry.ParryResult.PARTIAL:
 				mitigated_damage = max(1, int(mitigated_damage * 0.4))
 				dialogue_label.text = "PARTIAL PARRY! " + ("CRIT REDUCED!" if is_crit else "DAMAGE REDUCED!")
@@ -501,7 +551,6 @@ func start_boss_turn() -> void:
 	elif is_defending:
 		mitigated_damage = max(1, int(mitigated_damage * 0.5))
 		
-	# --- STANCE INCOMING DAMAGE MODIFIER (FIGHTER) ---
 	if Global.selected_character.to_lower() == "fighter" and player.has_node("FighterBP"):
 		var bp_system = player.get_node("FighterBP")
 		if bp_system.has_method("get") and bp_system.get("current_stance") != null:
@@ -546,7 +595,7 @@ func start_boss_turn() -> void:
 	start_player_turn()
 
 
-# --- ACTION BUTTON SIGNALS ---
+# --- ACTION BUTTON ACTIONS ---
 
 func _on_attack_button_pressed() -> void:
 	_play_confirm_sound()
@@ -611,7 +660,6 @@ func _on_defend_button_pressed() -> void:
 				var old_stance = bp_system.current_stance
 				bp_system.perform_default()
 				
-				# Only overwrite text if stance DID NOT change
 				if old_stance == bp_system.current_stance:
 					_update_fighter_status_display(bp_system.current_bp)
 		"mage":
@@ -635,7 +683,6 @@ func _on_skill_button_pressed() -> void:
 				if bp_system.try_brave():
 					attack_button.text = "Attack (" + str(bp_system.queued_actions) + "x)"
 					
-					# Only overwrite text if stance DID NOT change
 					if old_stance == bp_system.current_stance:
 						_update_fighter_status_display(bp_system.current_bp)
 				else:
@@ -662,8 +709,11 @@ func _on_boss_defeated() -> void:
 	if parry_bar:
 		parry_bar.hide()
 		
+	# --- RECORD VICTORY ---
+	SaveManager.record_victory(Global.selected_character)
+	
 	dialogue_label.text = "VICTORY! YOU DEFEATED THE BOSS!"
-	print("BATTLE WON!")
+	print("BATTLE WON! Victory saved for: ", Global.selected_character)
 	
 	await get_tree().create_timer(2.5).timeout
 	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
@@ -671,19 +721,10 @@ func _on_boss_defeated() -> void:
 
 # --- AUDIO HELPER METHODS ---
 
-func setup_button_hover_sounds(parent_node: Node) -> void:
-	for child in parent_node.get_children():
-		if child is Button:
-			child.mouse_entered.connect(_on_button_hovered)
-			child.pressed.connect(_play_confirm_sound)
-		
-		if child.get_child_count() > 0:
-			setup_button_hover_sounds(child)
-
-
 func _on_button_hovered() -> void:
 	if hover_sound:
 		hover_sound.play()
+
 
 func _play_confirm_sound() -> void:
 	if confirm_sound:

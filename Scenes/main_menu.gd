@@ -34,21 +34,21 @@ func _ready() -> void:
 		particles.add_to_group("particles")
 		SettingsManager.set_particle_density(SettingsManager.particle_density)
 	
-	# Connect mouse enter and disable built-in UI focus stealing
-	for i in range(menu_buttons.size()):
-		var btn = menu_buttons[i]
-		var button_index = i
+	# Disable all mouse focus and mouse click/hover interactions on buttons
+	for btn in menu_buttons:
 		btn.focus_mode = Control.FOCUS_NONE
-		btn.mouse_entered.connect(func(): select_index(button_index))
+		btn.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	# Initialize styling on start
+	# Initialize keyboard/controller navigation styling
 	selected_index = 0
 	update_button_styles()
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Ignore inputs if settings menu is open
 	if settings_menu and settings_menu.visible:
 		return
 
+	# Ignore raw analog motion if desired
 	if event is InputEventJoypadMotion:
 		return
 
@@ -65,9 +65,6 @@ func select_index(index: int) -> void:
 	if selected_index != index:
 		selected_index = index
 		_on_button_hovered()
-		update_button_styles()
-	else:
-		selected_index = index
 		update_button_styles()
 
 func trigger_selected_action() -> void:
