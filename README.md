@@ -55,12 +55,14 @@ Alternatively Mac users are free to pay for the 100 dollar subscription license 
 
 ---
 
-## ✨ Recent Updates (v1.2.0 Overhaul)
+## ✨ Recent Updates (v1.3.0 Overhaul)
 
-* **Fighter Class Stance System**
-  * Dynamically switch between **BERSERK**, **GUARD**, and **BALANCED** stances based on BP (Battle Points) debt.
-  * Real-time status UI updates reflect active damage/defense multipliers.
-* **Mage Class Mana System**
-  * Resource management introduced with a Max MP pool of **100**.
-  * Spells now require specific MP costs to cast.
-  * Turn-start passive MP regeneration added!
+* **Pure Controller & Arcade Navigation**
+  * Mouse controls completely stripped. Full navigation now locked strictly to D-pad, stick, and keyboard inputs.
+* **Hard Mode Progression**
+  * Added a Hard Mode challenge toggle for all heroes!
+  * Hard Mode unlocks per character once you reach **5 Victories** on standard difficulty.
+* **Save Data & Persistent Progression**
+  * Player stats and win counts now automatically save to disk (`user://save_data.cfg`) and persist across sessions.
+* **UI & Visual Refresh**
+  * Cleaned up character select layout with clear `WINS: X` indicators and dynamic hero-themed selection borders.
