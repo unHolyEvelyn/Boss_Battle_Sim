@@ -1,0 +1,819 @@
+[gd_scene format=3 uid="uid://cy6vwdvx7dh6s"]
+
+[ext_resource type="Script" uid="uid://b5lbrxrrjvvtv" path="res://Scenes/boss_party.gd" id="1_caalk"]
+[ext_resource type="Script" uid="uid://djbur718kpvh4" path="res://Scripts/cpu_particles_2d.gd" id="1_ux667"]
+[ext_resource type="Texture2D" uid="uid://b23r7cd8qqr6p" path="res://Sprites/Boss/boss_legs.png" id="2_qpy0n"]
+[ext_resource type="Texture2D" uid="uid://bufjkym174w3c" path="res://Sprites/Boss/boss_torso.png" id="3_epuic"]
+[ext_resource type="Texture2D" uid="uid://d1g8enpbb42a1" path="res://Sprites/Boss/boss_left_arm.png" id="4_h02dy"]
+[ext_resource type="Texture2D" uid="uid://r4ijskjwv4f7" path="res://Sprites/Boss/boss_head.png" id="5_bh1wx"]
+[ext_resource type="Texture2D" uid="uid://m5jw5m7wrr72" path="res://Sprites/Boss/boss_right_arm.png" id="6_dukdm"]
+[ext_resource type="Texture2D" uid="uid://xu2bgrducjnj" path="res://Sprites/Player Battle/fighter_attack.png" id="7_ux667"]
+[ext_resource type="Texture2D" uid="uid://do6w443l00h2o" path="res://Sprites/Player Battle/fighter_battle.png" id="8_g8fcj"]
+[ext_resource type="Script" uid="uid://dmqmu1vv1b5ph" path="res://Scripts/fighter_bp.gd" id="9_bh1wx"]
+[ext_resource type="Texture2D" uid="uid://c1mqjw7fwt3wu" path="res://Sprites/Player Battle/mage_attack.png" id="9_wc0uh"]
+[ext_resource type="Texture2D" uid="uid://nw37gvw3dtwo" path="res://Sprites/Player Battle/mage_cast.png" id="10_824y6"]
+[ext_resource type="Texture2D" uid="uid://c1p8aoxjx6odu" path="res://Sprites/Player Battle/mage_battle.png" id="11_wv3uq"]
+[ext_resource type="Texture2D" uid="uid://beuo103mf830m" path="res://Sprites/Player Battle/tank_attack.png" id="12_nctyp"]
+[ext_resource type="Script" uid="uid://qs4jranxbrje" path="res://Scripts/mage_spells.gd" id="13_dukdm"]
+[ext_resource type="Texture2D" uid="uid://b5f7cyqovplpt" path="res://Sprites/Player Battle/tank_battle.png" id="13_va7r0"]
+[ext_resource type="FontFile" uid="uid://bv55qsn56wwh" path="res://Fonts/ari-w9500-bold.ttf" id="14_gmw8m"]
+[ext_resource type="Texture2D" uid="uid://o4r6bdoek6b0" path="res://Sprites/UI/parrybarframe.png" id="15_oh31c"]
+[ext_resource type="AudioStream" uid="uid://ddw3bf2ef2rfl" path="res://Music/partybosstheme.ogg" id="16_4erl7"]
+[ext_resource type="Script" uid="uid://mea63k4m86r" path="res://Scripts/tank_parry.gd" id="16_ux667"]
+[ext_resource type="Script" uid="uid://brvfseoqvxf52" path="res://Scripts/party_ui_layer.gd" id="17_dukdm"]
+[ext_resource type="AudioStream" uid="uid://bwmxeowhuhg2w" path="res://Sounds/blipSelect.wav" id="17_gk8ng"]
+[ext_resource type="AudioStream" uid="uid://iomc08gweo8n" path="res://Sounds/blipConfirm.wav" id="18_r6oev"]
+[ext_resource type="Script" uid="uid://dnajjh4n1m8me" path="res://Scripts/party_battle_manager.gd" id="19_qpy0n"]
+
+[sub_resource type="Animation" id="Animation_wb0gu"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Torso:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(259, 43)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Torso:rotation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Torso/Head:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-1, -18)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Torso/Head:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Torso/RightArm:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Torso/LeftArm:rotation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Legs:position")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(258, 63)]
+}
+
+[sub_resource type="Animation" id="Animation_84vmf"]
+resource_name = "idle"
+length = 1.6
+loop_mode = 1
+step = 0.004166667
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Torso:position")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(259, 43), Vector2(259, 41), Vector2(259, 43)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Torso:rotation")
+tracks/1/interp = 2
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.034906585, 0.0]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Torso/Head:position")
+tracks/2/interp = 2
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(-1, -18)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Torso/Head:rotation")
+tracks/3/interp = 2
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, -0.05235988, 0.0]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Torso/RightArm:rotation")
+tracks/4/interp = 2
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, -0.06981317, 0.0]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Torso/LeftArm:rotation")
+tracks/5/interp = 2
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [0.0, 0.06981317, 0.0]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Legs:position")
+tracks/6/interp = 2
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 0.8, 1.6),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(258, 63), Vector2(258, 61), Vector2(258, 63)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_g30fm"]
+_data = {
+&"RESET": SubResource("Animation_wb0gu"),
+&"idle": SubResource("Animation_84vmf")
+}
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pm8lu"]
+atlas = ExtResource("7_ux667")
+region = Rect2(0, 0, 65, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n0t5y"]
+atlas = ExtResource("7_ux667")
+region = Rect2(65, 0, 65, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ey5fq"]
+atlas = ExtResource("7_ux667")
+region = Rect2(130, 0, 65, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ak5hr"]
+atlas = ExtResource("7_ux667")
+region = Rect2(195, 0, 65, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2nfdp"]
+atlas = ExtResource("8_g8fcj")
+region = Rect2(0, 0, 65, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qvymh"]
+atlas = ExtResource("8_g8fcj")
+region = Rect2(65, 0, 65, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_75f1p"]
+atlas = ExtResource("8_g8fcj")
+region = Rect2(130, 0, 65, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dmqki"]
+atlas = ExtResource("8_g8fcj")
+region = Rect2(195, 0, 65, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_g4v7s"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pm8lu")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n0t5y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ey5fq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ak5hr")
+}],
+"loop": 0,
+"name": &"fighter_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2nfdp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qvymh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_75f1p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dmqki")
+}],
+"loop": 1,
+"name": &"fighter_idle",
+"speed": 4.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i6i5h"]
+atlas = ExtResource("9_wc0uh")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uefk8"]
+atlas = ExtResource("9_wc0uh")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ks85k"]
+atlas = ExtResource("9_wc0uh")
+region = Rect2(96, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_obsqv"]
+atlas = ExtResource("9_wc0uh")
+region = Rect2(144, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xl45d"]
+atlas = ExtResource("10_824y6")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o2gx2"]
+atlas = ExtResource("10_824y6")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_167ej"]
+atlas = ExtResource("10_824y6")
+region = Rect2(96, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xqdy7"]
+atlas = ExtResource("10_824y6")
+region = Rect2(144, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l0e72"]
+atlas = ExtResource("10_824y6")
+region = Rect2(192, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bpcjj"]
+atlas = ExtResource("10_824y6")
+region = Rect2(240, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ywl4e"]
+atlas = ExtResource("11_wv3uq")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_uphjw"]
+atlas = ExtResource("11_wv3uq")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kwm1m"]
+atlas = ExtResource("11_wv3uq")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qfkxd"]
+atlas = ExtResource("11_wv3uq")
+region = Rect2(96, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_frwvy"]
+atlas = ExtResource("11_wv3uq")
+region = Rect2(144, 0, 48, 48)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yf5fn"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i6i5h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uefk8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ks85k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_obsqv")
+}],
+"loop": 0,
+"name": &"mage_attack",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xl45d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o2gx2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_167ej")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xqdy7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_l0e72")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bpcjj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ywl4e")
+}],
+"loop": 0,
+"name": &"mage_cast",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_uphjw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kwm1m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qfkxd")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_frwvy")
+}],
+"loop": 1,
+"name": &"mage_idle",
+"speed": 4.0
+}]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y1b4x"]
+atlas = ExtResource("12_nctyp")
+region = Rect2(0, 0, 48, 66)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcjx6"]
+atlas = ExtResource("13_va7r0")
+region = Rect2(0, 0, 48, 66)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e6ypq"]
+atlas = ExtResource("13_va7r0")
+region = Rect2(48, 0, 48, 66)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5tshq"]
+atlas = ExtResource("13_va7r0")
+region = Rect2(96, 0, 48, 66)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y604j"]
+atlas = ExtResource("13_va7r0")
+region = Rect2(144, 0, 48, 66)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_57qmd"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y1b4x")
+}],
+"loop": 0,
+"name": &"tank_attack",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fcjx6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e6ypq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5tshq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y604j")
+}],
+"loop": 1,
+"name": &"tank_idle",
+"speed": 2.0
+}]
+
+[sub_resource type="Gradient" id="Gradient_h8h0h"]
+colors = PackedColorArray(0.101960786, 0.101960786, 0.101960786, 1, 0.101960786, 0.101960786, 0.101960786, 1)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_g4v7s"]
+gradient = SubResource("Gradient_h8h0h")
+width = 200
+height = 20
+
+[node name="PartyBattleScene" type="Node2D" unique_id=1724671013]
+
+[node name="ArenaWorld" type="Node2D" parent="." unique_id=1754917707]
+
+[node name="Background" type="ColorRect" parent="ArenaWorld" unique_id=985606873]
+z_index = -1000
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 320.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CPUParticles2D" type="CPUParticles2D" parent="ArenaWorld" unique_id=244107426]
+position = Vector2(160, 90)
+amount = 10000
+emission_shape = 3
+emission_rect_extents = Vector2(160, 90)
+gravity = Vector2(0, -980)
+script = ExtResource("1_ux667")
+
+[node name="Boss" type="Node2D" parent="ArenaWorld" unique_id=1708080587]
+position = Vector2(0, 28)
+script = ExtResource("1_caalk")
+
+[node name="Legs" type="Sprite2D" parent="ArenaWorld/Boss" unique_id=1385858748]
+texture_filter = 1
+position = Vector2(258, 63)
+texture = ExtResource("2_qpy0n")
+region_enabled = true
+region_rect = Rect2(7, 34, 26, 27)
+
+[node name="Torso" type="Sprite2D" parent="ArenaWorld/Boss" unique_id=1882879488]
+texture_filter = 1
+position = Vector2(259, 43)
+texture = ExtResource("3_epuic")
+region_enabled = true
+region_rect = Rect2(8, 13, 25, 29)
+
+[node name="LeftArm" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=1281725456]
+z_index = -1
+texture_filter = 1
+position = Vector2(-9, -5)
+texture = ExtResource("4_h02dy")
+offset = Vector2(-3, 9)
+region_enabled = true
+region_rect = Rect2(0, 18, 16, 26)
+
+[node name="Head" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=2008986176]
+position = Vector2(-1, -18)
+texture = ExtResource("5_bh1wx")
+region_enabled = true
+region_rect = Rect2(2, 0, 35, 18)
+
+[node name="RightArm" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=604459875]
+position = Vector2(6, -10)
+texture = ExtResource("6_dukdm")
+offset = Vector2(4, 13)
+region_enabled = true
+region_rect = Rect2(25, 14, 13, 35)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ArenaWorld/Boss" unique_id=1510053171]
+libraries/ = SubResource("AnimationLibrary_g30fm")
+
+[node name="BossHPLabel" type="Label" parent="ArenaWorld/Boss" unique_id=192275844]
+texture_filter = 1
+offset_left = 219.0
+offset_top = 78.0
+offset_right = 284.0
+offset_bottom = 87.0
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "HP: 1000/1000"
+
+[node name="BossStatusLabel" type="Label" parent="ArenaWorld/Boss" unique_id=1302774384]
+offset_left = 83.0
+offset_top = 14.0
+offset_right = 123.0
+offset_bottom = 37.0
+
+[node name="FighterSprite" type="AnimatedSprite2D" parent="ArenaWorld" unique_id=1289482929]
+texture_filter = 1
+position = Vector2(40, 45)
+sprite_frames = SubResource("SpriteFrames_g4v7s")
+animation = &"fighter_idle"
+frame_progress = 0.3558898
+
+[node name="FighterBP" type="Node2D" parent="ArenaWorld/FighterSprite" unique_id=1916512704]
+script = ExtResource("9_bh1wx")
+
+[node name="MageSprite" type="AnimatedSprite2D" parent="ArenaWorld" unique_id=951013020]
+texture_filter = 1
+position = Vector2(30, 75)
+sprite_frames = SubResource("SpriteFrames_yf5fn")
+animation = &"mage_cast"
+frame = 6
+frame_progress = 1.0
+
+[node name="MageSpells" type="Node2D" parent="ArenaWorld/MageSprite" unique_id=1072086775]
+script = ExtResource("13_dukdm")
+
+[node name="TankSprite" type="AnimatedSprite2D" parent="ArenaWorld" unique_id=1181653338]
+texture_filter = 1
+position = Vector2(50, 105)
+sprite_frames = SubResource("SpriteFrames_57qmd")
+animation = &"tank_attack"
+
+[node name="TankParry" type="Node2D" parent="ArenaWorld/TankSprite" unique_id=851182890]
+script = ExtResource("16_ux667")
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=150862451]
+script = ExtResource("17_dukdm")
+
+[node name="PartyStatusPanel" type="PanelContainer" parent="UILayer" unique_id=805952735]
+anchors_preset = -1
+anchor_left = 0.256
+anchor_top = 0.7
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0799942
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/PartyStatusPanel" unique_id=1199121434]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+
+[node name="FighterSlot" type="PanelContainer" parent="UILayer/PartyStatusPanel/VBoxContainer" unique_id=72710824]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UILayer/PartyStatusPanel/VBoxContainer/FighterSlot" unique_id=521314258]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="CursorLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/FighterSlot/HBoxContainer" unique_id=2085604777]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "▶"
+
+[node name="FIGHTER" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/FighterSlot/HBoxContainer" unique_id=868000796]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "Fighter"
+
+[node name="HPLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/FighterSlot/HBoxContainer" unique_id=1252045235]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "HP: X/X"
+
+[node name="BPLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/FighterSlot/HBoxContainer" unique_id=1862997164]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "BP: X"
+
+[node name="StatusLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/FighterSlot/HBoxContainer" unique_id=298174838]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "BALANCED"
+
+[node name="MageSlot" type="PanelContainer" parent="UILayer/PartyStatusPanel/VBoxContainer" unique_id=1348910513]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UILayer/PartyStatusPanel/VBoxContainer/MageSlot" unique_id=54526981]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="CursorLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/MageSlot/HBoxContainer" unique_id=1568961117]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "▶"
+
+[node name="MAGE" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/MageSlot/HBoxContainer" unique_id=238872239]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "Mage"
+
+[node name="HPLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/MageSlot/HBoxContainer" unique_id=44297383]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "HP: X/X"
+
+[node name="MPLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/MageSlot/HBoxContainer" unique_id=710071181]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "MP: X/X"
+
+[node name="TankSlot" type="PanelContainer" parent="UILayer/PartyStatusPanel/VBoxContainer" unique_id=1663415840]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UILayer/PartyStatusPanel/VBoxContainer/TankSlot" unique_id=1104140116]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 4
+
+[node name="CursorLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/TankSlot/HBoxContainer" unique_id=555871713]
+custom_minimum_size = Vector2(10, 10)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "▶"
+
+[node name="TANK" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/TankSlot/HBoxContainer" unique_id=306531627]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "Tank"
+
+[node name="HPLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/TankSlot/HBoxContainer" unique_id=1557374683]
+custom_minimum_size = Vector2(55, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "HP: X/X"
+
+[node name="TauntLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/TankSlot/HBoxContainer" unique_id=297154824]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "TAUNT:"
+
+[node name="StatusLabel" type="Label" parent="UILayer/PartyStatusPanel/VBoxContainer/TankSlot/HBoxContainer" unique_id=1900499628]
+custom_minimum_size = Vector2(45, 0)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "READY"
+
+[node name="ActionMenu" type="PanelContainer" parent="UILayer" unique_id=1456398801]
+anchors_preset = -1
+anchor_top = 0.7
+anchor_right = 0.25
+anchor_bottom = 1.0
+size_flags_horizontal = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/ActionMenu" unique_id=6397371]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+
+[node name="AttackButton" type="Button" parent="UILayer/ActionMenu/VBoxContainer" unique_id=252041631]
+custom_minimum_size = Vector2(65, 0)
+custom_maximum_size = Vector2(65, 12)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "ATTACK"
+alignment = 0
+
+[node name="DefendButton" type="Button" parent="UILayer/ActionMenu/VBoxContainer" unique_id=1708956897]
+custom_minimum_size = Vector2(65, 0)
+custom_maximum_size = Vector2(65, 12)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "DEFEND"
+alignment = 0
+
+[node name="SkillButton" type="Button" parent="UILayer/ActionMenu/VBoxContainer" unique_id=115974824]
+custom_minimum_size = Vector2(65, 0)
+custom_maximum_size = Vector2(65, 12)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "SKILL"
+alignment = 0
+
+[node name="CursorLabel" type="Label" parent="UILayer/ActionMenu" unique_id=179220003]
+custom_minimum_size = Vector2(10, 10)
+custom_maximum_size = Vector2(8, -1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+text = "▶"
+
+[node name="SpellSubMenu" type="PanelContainer" parent="UILayer" unique_id=1108571742]
+visible = false
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.7
+anchor_right = 0.55
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_right = -9.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/SpellSubMenu" unique_id=1588673863]
+layout_mode = 2
+
+[node name="BattleDialogue" type="PanelContainer" parent="UILayer" unique_id=1749067423]
+offset_left = 110.0
+offset_top = 4.0
+offset_right = 310.0
+offset_bottom = 39.0
+
+[node name="Label" type="Label" parent="UILayer/BattleDialogue" unique_id=2033405328]
+custom_minimum_size = Vector2(200, 33)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("14_gmw8m")
+theme_override_font_sizes/font_size = 8
+text = "Placeholder Dialogue Box Text.  I need this shit here to see if everything is working.  If the text is wrapping, then it is."
+autowrap_mode = 3
+
+[node name="ParryBar" type="TextureProgressBar" parent="UILayer" unique_id=2012470795]
+visible = false
+texture_filter = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -100.0
+offset_top = 10.0
+offset_right = 100.0
+offset_bottom = 30.0
+grow_horizontal = 2
+grow_vertical = 2
+texture_under = SubResource("GradientTexture2D_g4v7s")
+texture_over = ExtResource("15_oh31c")
+
+[node name="AudioLayer" type="Node" parent="." unique_id=495570125]
+
+[node name="BGM" type="AudioStreamPlayer" parent="AudioLayer" unique_id=1005793230]
+stream = ExtResource("16_4erl7")
+autoplay = true
+bus = &"Music"
+
+[node name="UI" type="Node" parent="AudioLayer" unique_id=1771520858]
+
+[node name="HoverSound" type="AudioStreamPlayer" parent="AudioLayer/UI" unique_id=105921934]
+stream = ExtResource("17_gk8ng")
+bus = &"SFX"
+
+[node name="ConfirmSound" type="AudioStreamPlayer" parent="AudioLayer/UI" unique_id=569342525]
+stream = ExtResource("18_r6oev")
+bus = &"SFX"
+
+[node name="PartyBattleManager" type="Node" parent="." unique_id=1049182670]
+script = ExtResource("19_qpy0n")

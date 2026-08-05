@@ -62,9 +62,9 @@ var class_stats: Dictionary = {
 		"magic": 22
 	},
 	"tank": {
-		"max_hp": 160,
+		"max_hp": 140,
 		"attack": 8,
-		"defense": 20,
+		"defense": 16,
 		"speed": 6,
 	}
 }
@@ -118,6 +118,7 @@ func _process(delta: float) -> void:
 			
 		parry_bar.value = parry_value
 
+
 func load_character_stats() -> void:
 	var char_key = Global.selected_character.to_lower()
 	
@@ -139,6 +140,7 @@ func load_character_stats() -> void:
 		
 		update_hp_ui()
 		print("Loaded ", char_key.capitalize(), " | HP: ", max_hp, " (Mult: ", hp_mult, ")")
+
 
 func update_hp_ui() -> void:
 	var text = Global.selected_character.capitalize() + " - HP " + str(current_hp) + "/" + str(max_hp)
@@ -318,9 +320,12 @@ func update_spell_menu_display() -> void:
 			status = " [NOT ENOUGH MP!]"
 			
 		var hp_cost_text = ""
-		if Global.is_hard_mode and difficulty["hero_tweaks"]["mage_hp_cost_percent"] > 0.0:
-			var hp_drain = int(max_hp * difficulty["hero_tweaks"]["mage_hp_cost_percent"])
-			hp_cost_text = " (Drains " + str(hp_drain) + " HP)"
+		if Global.is_hard_mode:
+			var hp_drain = mage_node.get_spell_hp_cost(max_hp, spell["name"])
+			if hp_drain > 0:
+				hp_cost_text = " (Drains " + str(hp_drain) + " HP)"
+			elif spell["name"] == "Heal Bloom":
+				hp_cost_text = " (HP Drain Exempt)"
 		
 		dialogue_label.text = "SPELL [" + str(selected_spell_index + 1) + "/" + str(total) + "]: " + spell["name"].to_upper() + status + hp_cost_text + "\n" + spell["desc"]
 
@@ -340,16 +345,35 @@ func cast_selected_spell(spell: Dictionary) -> void:
 	current_mp -= mp_cost
 	
 	# --- HARD MODE MAGE HP COST TWEAK ---
-	if Global.is_hard_mode and difficulty["hero_tweaks"]["mage_hp_cost_percent"] > 0.0:
-		var hp_drain = int(max_hp * difficulty["hero_tweaks"]["mage_hp_cost_percent"])
-		current_hp = max(1, current_hp - hp_drain)
-		dialogue_label.text = "OVERCHARGED CAST! (-" + str(hp_drain) + " HP)"
-		await get_tree().create_timer(0.4).timeout
+	var mage_node: MageSpells = player.get_node("MageSpells") if player.has_node("MageSpells") else null
+	
+	if Global.is_hard_mode and mage_node:
+		var hp_drain = mage_node.get_spell_hp_cost(max_hp, spell["name"])
+		if hp_drain > 0:
+			current_hp = max(1, current_hp - hp_drain)
+			dialogue_label.text = "OVERCHARGED CAST! (-" + str(hp_drain) + " HP)"
+			await get_tree().create_timer(0.4).timeout
 
 	update_hp_ui()
-	
-	var mage_node: MageSpells = player.get_node("MageSpells") if player.has_node("MageSpells") else null
 
+	# --- PLAY CAST ANIMATION ---
+	# Checks for "mage_cast" first to match your SpriteFrames setup
+	if player.sprite_frames and player.sprite_frames.has_animation("mage_cast"):
+		player.play("mage_cast")
+	elif player.has_method("play_cast"):
+		player.play_cast()
+	elif player.sprite_frames and player.sprite_frames.has_animation("cast"):
+		player.play("cast")
+	elif player.sprite_frames and player.sprite_frames.has_animation("mage_attack"):
+		player.play("mage_attack")
+	elif player.has_method("play_attack"):
+		player.play_attack()
+
+	# Wait until the cast animation completes playing all frames
+	if player.is_playing():
+		await player.animation_finished
+
+	# --- EXECUTE SPELL EFFECT ---
 	match spell["type"]:
 		"instant_attack":
 			var base_damage = int(magic_power * spell["power"])
@@ -359,8 +383,6 @@ func cast_selected_spell(spell: Dictionary) -> void:
 				dialogue_label.text = "SPELL CHAIN! " + spell["name"].to_upper() + " AMPLIFIED!"
 			else:
 				dialogue_label.text = "CAST " + spell["name"].to_upper() + "!"
-
-			await player.play_attack()
 			
 			if boss.has_method("take_damage"):
 				boss.take_damage(base_damage)
@@ -374,7 +396,6 @@ func cast_selected_spell(spell: Dictionary) -> void:
 				var turns = mage_node.queue_delayed_spell(spell, magic_power)
 				dialogue_label.text = "CAST " + spell["name"].to_upper() + "! (DETONATES IN " + str(turns) + " TURNS)"
 			
-			await player.play_attack()
 			await get_tree().create_timer(0.5).timeout
 
 		"heal":
@@ -394,6 +415,12 @@ func cast_selected_spell(spell: Dictionary) -> void:
 				mage_node.is_overcharged = true
 			dialogue_label.text = "SPELL OVERCHARGE! NEXT DELAYED SPELL +50% POWER!"
 			await get_tree().create_timer(0.6).timeout
+
+	# --- RETURN TO IDLE ---
+	if player.sprite_frames and player.sprite_frames.has_animation("mage_idle"):
+		player.play("mage_idle")
+	elif player.sprite_frames and player.sprite_frames.has_animation("idle"):
+		player.play("idle")
 
 	end_player_turn()
 
@@ -601,6 +628,64 @@ func _on_attack_button_pressed() -> void:
 	_play_confirm_sound()
 	action_menu.hide()
 
+	# --- SPECIAL HEAVY TANK COUNTER STRIKE SEQUENCE ---
+	var tank_node: TankParry = player.get_node("TankParry") if player.has_node("TankParry") else null
+	if Global.selected_character.to_lower() == "tank" and tank_node and tank_node.is_counter_primed:
+		var multiplier = tank_node.consume_counter_bonus()
+		var counter_damage = int(attack_power * multiplier)
+		
+		dialogue_label.text = "DEVASTATING COUNTER STRIKE (" + str(counter_damage) + " DMG)!"
+
+		var original_pos: Vector2 = player.position
+		var windup_pos: Vector2 = original_pos + Vector2(-18, 0)
+		var lunge_pos: Vector2 = original_pos + Vector2(55, 0)
+
+		# 1. Wind-up pull back
+		var windup_tween = create_tween()
+		windup_tween.tween_property(player, "position", windup_pos, 0.10)\
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_OUT)
+		await windup_tween.finished
+
+		# 2. Switch to 1-frame Shield Bash pose & explosive forward thrust
+		if player.sprite_frames and player.sprite_frames.has_animation("tank_bash"):
+			player.play("tank_bash")
+		elif player.sprite_frames and player.sprite_frames.has_animation("bash"):
+			player.play("bash")
+
+		var lunge_tween = create_tween()
+		lunge_tween.tween_property(player, "position", lunge_pos, 0.08)\
+			.set_trans(Tween.TRANS_EXPO)\
+			.set_ease(Tween.EASE_IN)
+		await lunge_tween.finished
+
+		# 3. Apply heavy counter damage
+		if boss.has_method("take_damage"):
+			boss.take_damage(counter_damage)
+		elif boss.has_method("play_hurt"):
+			boss.play_hurt()
+
+		# Brief freeze-frame pause at contact for physical weight
+		await get_tree().create_timer(0.14).timeout
+
+		# 4. Retract back to home position
+		var return_tween = create_tween()
+		return_tween.tween_property(player, "position", original_pos, 0.16)\
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_OUT)
+		await return_tween.finished
+
+		# Reset pose back to tank idle
+		if player.sprite_frames and player.sprite_frames.has_animation("tank_idle"):
+			player.play("tank_idle")
+		elif player.sprite_frames and player.sprite_frames.has_animation("idle"):
+			player.play("idle")
+
+		attack_button.text = "Attack"
+		end_player_turn()
+		return
+
+	# --- STANDARD ATTACK FLOW FOR OTHER CLASSES / REGULAR TANK HITS ---
 	var attacks_to_run = 1
 
 	if Global.selected_character.to_lower() == "fighter" and player.has_node("FighterBP"):
@@ -608,22 +693,12 @@ func _on_attack_button_pressed() -> void:
 		attacks_to_run = bp_system.queued_actions
 
 	var base_hit = attack_power
+	dialogue_label.text = "ATTACKING (" + str(attacks_to_run) + "x)!"
 
-	if Global.selected_character.to_lower() == "tank" and player.has_node("TankParry"):
-		var tank_node: TankParry = player.get_node("TankParry")
-		var multiplier = tank_node.consume_counter_bonus()
-
-		if multiplier > 1.0:
-			base_hit = int(base_hit * multiplier)
-			dialogue_label.text = "DEVASTATING COUNTER STRIKE (" + str(base_hit) + " DMG)!"
-		else:
-			dialogue_label.text = "TANK ATTACKS!"
-	else:
-		dialogue_label.text = "ATTACKING (" + str(attacks_to_run) + "x)!"
+	var original_pos: Vector2 = player.position
+	var lunge_pos: Vector2 = original_pos + Vector2(40, 0)
 
 	for i in range(attacks_to_run):
-		await player.play_attack()
-		
 		var combo_multiplier: float = 1.0 + (i * 0.25)
 		var hit_damage: int = int(base_hit * combo_multiplier)
 		
@@ -634,13 +709,42 @@ func _on_attack_button_pressed() -> void:
 					bp_system.Stance.BERSERK:
 						hit_damage = int(hit_damage * 1.5)
 
+		# 1. Lunge forward toward boss
+		var lunge_tween = create_tween()
+		lunge_tween.tween_property(player, "position", lunge_pos, 0.15)\
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_OUT)
+
+		# 2. Trigger attack animation
+		if player.has_method("play_attack"):
+			player.play_attack()
+		elif player.sprite_frames and player.sprite_frames.has_animation("attack"):
+			player.play("attack")
+
+		# 3. Wait specifically for swing smear frame (Frame 1)
+		if player.frame < 1 and player.is_playing():
+			await player.frame_changed
+
+		# 4. Apply damage at blade contact
 		if boss.has_method("take_damage"):
 			boss.take_damage(hit_damage)
 		elif boss.has_method("play_hurt"):
 			boss.play_hurt()
-			
-		await get_tree().create_timer(0.15).timeout
+
+		await lunge_tween.finished
+		await get_tree().create_timer(0.08).timeout
+
+		# 5. Retract back to base position
+		var return_tween = create_tween()
+		return_tween.tween_property(player, "position", original_pos, 0.12)\
+			.set_trans(Tween.TRANS_QUAD)\
+			.set_ease(Tween.EASE_IN)
 		
+		await return_tween.finished
+
+		if player.sprite_frames and player.sprite_frames.has_animation("idle"):
+			player.play("idle")
+
 		if is_battle_over:
 			return
 

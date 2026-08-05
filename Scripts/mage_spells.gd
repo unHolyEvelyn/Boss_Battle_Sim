@@ -30,10 +30,10 @@ var mage_spells: Array[Dictionary] = [
 	},
 	{
 		"name": "Heal Bloom",
-		"desc": "Restores HP based on Magic Power.",
+		"desc": "Restores HP based on Magic Power. (Exempt from Hard Mode HP drain).",
 		"type": "heal",
 		"power": 1.0,
-		"cost": 25,
+		"cost": 15,
 		"delay": 0
 	},
 	{
@@ -75,8 +75,12 @@ func get_spell(index: int) -> Dictionary:
 	return mage_spells[index]
 
 
-## Helper to calculate the HP drain cost of a spell in Hard Mode
-func get_spell_hp_cost(player_max_hp: int) -> int:
+## Helper to calculate the HP drain cost of a spell in Hard Mode.
+## Exempts "Heal Bloom" from deducting HP.
+func get_spell_hp_cost(player_max_hp: int, spell_name: String = "") -> int:
+	if spell_name == "Heal Bloom":
+		return 0
+
 	var active_diff = Global.get_active_difficulty()
 	if active_diff.has("hero_tweaks"):
 		var hp_percent = active_diff["hero_tweaks"].get("mage_hp_cost_percent", 0.0)
@@ -84,21 +88,24 @@ func get_spell_hp_cost(player_max_hp: int) -> int:
 	return 0
 
 
-func queue_delayed_spell(spell: Dictionary, base_magic_power: int) -> int:
+func queue_delayed_spell(spell: Dictionary, base_magic_power: int) -> bool:
 	var total_damage = int(base_magic_power * spell["power"])
+	var was_overcharged = is_overcharged
 	
 	if is_overcharged:
 		# Multiplier scales higher in Hard Mode (+75% vs +50%)
-		var boost_mult = 1.75 if Global.is_hard_mode else 1.5
+		var boost_mult = 1.75 if ("is_hard_mode" in Global and Global.is_hard_mode) else 1.5
 		total_damage = int(total_damage * boost_mult)
 		is_overcharged = false
 
 	active_delayed_spells.append({
 		"name": spell["name"],
 		"turns_left": spell["delay"],
-		"damage": total_damage
+		"damage": total_damage,
+		"is_overcharged": was_overcharged
 	})
-	return spell["delay"]
+	
+	return was_overcharged
 
 
 func process_turn_tick() -> Array[Dictionary]:

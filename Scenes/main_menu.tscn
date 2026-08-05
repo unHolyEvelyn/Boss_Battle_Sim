@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bpp7cvho5bckf" path="res://Scenes/main_menu.gd" id="1_1ehe0"]
 [ext_resource type="FontFile" uid="uid://dm7hdy4la56wj" path="res://Fonts/Alkhemikal.ttf" id="1_48xlc"]
 [ext_resource type="FontFile" uid="uid://bv55qsn56wwh" path="res://Fonts/ari-w9500-bold.ttf" id="2_1ehe0"]
+[ext_resource type="Script" uid="uid://djbur718kpvh4" path="res://Scripts/cpu_particles_2d.gd" id="2_cp0ys"]
 [ext_resource type="AudioStream" uid="uid://bwmxeowhuhg2w" path="res://Sounds/blipSelect.wav" id="4_n45e2"]
 [ext_resource type="Script" uid="uid://d3l60wxtes62i" path="res://Scripts/settings_menu.gd" id="4_opfnp"]
 [ext_resource type="AudioStream" uid="uid://iomc08gweo8n" path="res://Sounds/blipConfirm.wav" id="5_n45e2"]
@@ -28,6 +29,18 @@ border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
 border_color = Color(1, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p1u0y"]
+content_margin_left = 2.0
+content_margin_top = 2.0
+content_margin_right = 2.0
+content_margin_bottom = 2.0
+bg_color = Color(0, 0, 0, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 1, 1, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7numd"]
 content_margin_left = 2.0
@@ -150,6 +163,7 @@ emission_shape = 3
 emission_rect_extents = Vector2(160, 90)
 gravity = Vector2(5, -2)
 color = Color(0.43, 0.15910001, 0.15910001, 1)
+script = ExtResource("2_cp0ys")
 
 [node name="Title" type="Label" parent="." unique_id=541099384]
 texture_filter = 1
@@ -189,6 +203,13 @@ theme_override_font_sizes/font_size = 8
 theme_override_styles/normal = SubResource("StyleBoxFlat_g4v7s")
 theme_override_styles/hover = SubResource("StyleBoxFlat_57qmd")
 text = "Character Select"
+
+[node name="PartyModeButton" type="Button" parent="VBoxContainer" unique_id=225172151]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_1ehe0")
+theme_override_font_sizes/font_size = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_p1u0y")
+text = "Party Mode"
 
 [node name="BiosButton" type="Button" parent="VBoxContainer" unique_id=1870605410]
 texture_filter = 1
@@ -258,6 +279,12 @@ theme_override_fonts/font = ExtResource("1_48xlc")
 theme_override_font_sizes/font_size = 24
 text = "Settings"
 horizontal_alignment = 1
+
+[node name="ParticleLabel" type="Label" parent="SettingsMenu/VBoxContainer" unique_id=1475207669]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_1ehe0")
+theme_override_font_sizes/font_size = 8
+text = "Particle Density"
 
 [node name="ParticleSlider" type="HSlider" parent="SettingsMenu/VBoxContainer" unique_id=1658522680]
 layout_mode = 2

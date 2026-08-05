@@ -1,6 +1,10 @@
 extends Control
 
 # --- SCENE REFERENCES ---
+@onready var title_label: Label = $Title
+@onready var portrait_container: HBoxContainer = $PortraitContainer
+@onready var info_container: VBoxContainer = $VBoxContainer
+
 @onready var name_label: Label = $VBoxContainer/Name
 @onready var desc_label: Label = $VBoxContainer/Description
 
@@ -9,6 +13,7 @@ extends Control
 
 @onready var hover_sound: AudioStreamPlayer = $HoverSound if has_node("HoverSound") else null
 @onready var confirm_sound: AudioStreamPlayer = $ConfirmSound if has_node("ConfirmSound") else null
+@onready var particles: CPUParticles2D = $CPUParticles2D if has_node("CPUParticles2D") else null
 
 # Outer panels for border styling
 @onready var panels: Dictionary = {
@@ -49,6 +54,14 @@ var win_labels: Dictionary = {}
 # Tracks menu selection: "HEROES" or "HARD_MODE"
 var active_focus_area: String = "HEROES"
 
+# --- ANIMATION CONFIGURATION ---
+@export var slide_offset: float = 60.0    # Distance in pixels for movement transitions
+@export var anim_duration: float = 0.5    # Transition speed in seconds
+
+var _title_target_pos: Vector2
+var _portrait_target_pos: Vector2
+var _info_target_pos: Vector2
+
 
 func _ready() -> void:
 	MusicManager.play_title_theme()
@@ -65,10 +78,73 @@ func _ready() -> void:
 	# Set up victory labels above portraits
 	setup_victory_labels()
 
+	# Register particle system with SettingsManager
+	if particles:
+		particles.add_to_group("particle_emitters")
+		if SettingsManager:
+			SettingsManager.apply_density_to_node(particles)
+
 	# Initialize default state
 	_apply_character_info("fighter")
 	update_borders()
 	_update_hard_mode_status()
+
+	# Center text labels and set smart autowrapping
+	if name_label:
+		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	
+	if desc_label:
+		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	# Center inner containers
+	if has_node("VBoxContainer/HBoxContainer"):
+		$VBoxContainer/HBoxContainer.alignment = BoxContainer.ALIGNMENT_CENTER
+	if info_container:
+		info_container.alignment = BoxContainer.ALIGNMENT_CENTER
+
+	# WAIT for Godot to finish calculating UI container layout before caching target coordinates
+	await get_tree().process_frame
+
+	# Cache layout positions
+	if title_label:
+		_title_target_pos = title_label.position
+	if portrait_container:
+		_portrait_target_pos = portrait_container.position
+	if info_container:
+		_info_target_pos = info_container.position
+
+	# Trigger entrance animations
+	animate_scene_in()
+
+
+# --- ENTRANCE ANIMATIONS ---
+
+func animate_scene_in() -> void:
+	var tween = create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.set_ease(Tween.EASE_OUT)
+
+	# 1. Title fades in and slides DOWN from above
+	if title_label:
+		title_label.position = _title_target_pos - Vector2(0, slide_offset)
+		title_label.modulate.a = 0.0
+		tween.tween_property(title_label, "position", _title_target_pos, anim_duration)
+		tween.tween_property(title_label, "modulate:a", 1.0, anim_duration)
+
+	# 2. Portraits fade in and slide IN FROM THE LEFT
+	if portrait_container:
+		portrait_container.position = _portrait_target_pos - Vector2(slide_offset, 0)
+		portrait_container.modulate.a = 0.0
+		tween.tween_property(portrait_container, "position", _portrait_target_pos, anim_duration)
+		tween.tween_property(portrait_container, "modulate:a", 1.0, anim_duration)
+
+	# 3. Info Container (Name/Desc/Hard Mode) fades in and slides IN FROM THE LEFT
+	if info_container:
+		info_container.position = _info_target_pos - Vector2(slide_offset, 0)
+		info_container.modulate.a = 0.0
+		tween.tween_property(info_container, "position", _info_target_pos, anim_duration)
+		tween.tween_property(info_container, "modulate:a", 1.0, anim_duration)
 
 
 func setup_victory_labels() -> void:
@@ -88,7 +164,6 @@ func setup_victory_labels() -> void:
 
 
 # --- EXCLUSIVE INPUT HANDLING ---
-# ONLY inputs mapped to "left", "right", "up", "down", "confirm", and "cancel" are accepted
 
 func _unhandled_input(event: InputEvent) -> void:
 	# 1. NAVIGATION: LEFT / RIGHT
@@ -106,7 +181,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			var next_index = (current_index + 1) % character_order.size()
 			select_char(character_order[next_index])
 
-	# 2. NAVIGATION: DOWN / UP (Switch focus between Hero row and Hard Mode toggle)
+	# 2. NAVIGATION: DOWN / UP
 	elif event.is_action_pressed("down"):
 		get_viewport().set_input_as_handled()
 		if active_focus_area == "HEROES":
@@ -153,7 +228,6 @@ func _apply_character_info(char_key: String) -> void:
 	desc_label.text = info["desc"]
 
 
-## Refreshes CheckBox and Label state based on hero progress
 func _update_hard_mode_status() -> void:
 	var wins = SaveManager.get_hero_wins(selected_character)
 	var unlocked = Global.is_hard_mode_unlocked(selected_character)
@@ -193,7 +267,6 @@ func update_borders() -> void:
 		stylebox.set_corner_radius_all(0)
 		stylebox.set_border_width_all(2)
 
-		# Highlight character border when in HEROES row
 		if char_key == selected_character and active_focus_area == "HEROES":
 			stylebox.border_color = info["color"]
 			if win_labels.has(char_key):
@@ -205,9 +278,8 @@ func update_borders() -> void:
 
 		panel.add_theme_stylebox_override("panel", stylebox)
 
-	# Visual indicator when active focus is down on Hard Mode
 	if active_focus_area == "HARD_MODE":
-		hard_mode_toggle.modulate = Color(1.3, 1.3, 1.3, 1.0) # Slightly brighten
+		hard_mode_toggle.modulate = Color(1.3, 1.3, 1.3, 1.0)
 	else:
 		hard_mode_toggle.modulate = Color(1.0, 1.0, 1.0, 1.0)
 
@@ -217,12 +289,20 @@ func update_borders() -> void:
 func _confirm_character_selection() -> void:
 	_play_confirm_sound()
 	Global.selected_character = selected_character
-	get_tree().change_scene_to_file("res://Scenes/battle_scene.tscn")
+	
+	if SceneTransition:
+		SceneTransition.transition_to_scene("res://Scenes/battle_scene.tscn")
+	else:
+		get_tree().change_scene_to_file("res://Scenes/battle_scene.tscn")
 
 
 func _go_back_to_main_menu() -> void:
 	_play_confirm_sound()
-	get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
+	
+	if SceneTransition:
+		SceneTransition.transition_to_scene("res://Scenes/main_menu.tscn")
+	else:
+		get_tree().change_scene_to_file("res://Scenes/main_menu.tscn")
 
 
 # --- AUDIO HELPERS ---

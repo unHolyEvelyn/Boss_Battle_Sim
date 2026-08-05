@@ -66,17 +66,23 @@ func load_settings() -> void:
 func set_particle_density(value: float) -> void:
 	particle_density = clamp(value, 0.0, 1.0)
 	
-	for particle_node in get_tree().get_nodes_in_group("particles"):
-		if particle_node is CPUParticles2D:
-			# Cache original particle amount if not already saved
-			if not particle_node.has_meta("base_amount"):
-				particle_node.set_meta("base_amount", particle_node.amount)
-			
-			var base_amount: int = particle_node.get_meta("base_amount")
-			particle_node.amount = max(1, int(base_amount * particle_density))
-			particle_node.emitting = (particle_density > 0.0)
+	# Update all active particles in the "particle_emitters" group
+	for particle_node in get_tree().get_nodes_in_group("particle_emitters"):
+		apply_density_to_node(particle_node)
 
 	save_settings()
+
+
+## Helper function to apply density scaling to a single particle node
+func apply_density_to_node(particle_node: Node) -> void:
+	if particle_node is CPUParticles2D or particle_node is GPUParticles2D:
+		# Cache original particle amount in metadata if not already saved
+		if not particle_node.has_meta("base_amount"):
+			particle_node.set_meta("base_amount", particle_node.amount)
+		
+		var base_amount: int = particle_node.get_meta("base_amount")
+		particle_node.amount = max(1, int(base_amount * particle_density))
+		particle_node.emitting = (particle_density > 0.0)
 
 
 func set_window_mode(mode: int) -> void:

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c1p8aoxjx6odu"
-path="res://.godot/imported/mage_battle.png-eec9d7703f94a64909ea800c4bb7fbc9.ctex"
+uid="uid://xu2bgrducjnj"
+path="res://.godot/imported/fighter_attack.png-2131861447b3f30a5dd65b3368a5f312.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/Player Battle/mage_battle.png"
-dest_files=["res://.godot/imported/mage_battle.png-eec9d7703f94a64909ea800c4bb7fbc9.ctex"]
+source_file="res://Sprites/Player Battle/fighter_attack.png"
+dest_files=["res://.godot/imported/fighter_attack.png-2131861447b3f30a5dd65b3368a5f312.ctex"]
 
 [params]
 
