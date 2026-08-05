@@ -5,9 +5,6 @@ Boss Battle Simulator game, where 3 classes of heroes fight a powerful boss with
 
 A turn-based tactical combat game built in Godot 4.
 
-## STOP REPORTING THE MOUSE DOESN'T WORK
-I KNOW.  I'm trying to take out any remnant of it having worked and move forward with 0 mouse functionality so there's less UI confusion.  My plan was always to make it keyboard or controller only, like most RPGs.
-
 ---
 
 ## 🎮 Installation & Running the Game
@@ -55,16 +52,13 @@ Alternatively Mac users are free to pay for the 100 dollar subscription license 
 
 ---
 
-## ✨ Recent Updates (v1.3.0 Overhaul)
+## ✨ Recent Updates (v1.4.0 Overhaul)
 
-* **Pure Controller & Arcade Navigation**
-  * Mouse controls completely stripped. Full navigation now locked strictly to D-pad, stick, and keyboard inputs.
-* **Hard Mode Progression**
-  * Added a Hard Mode challenge toggle for all heroes!
-  * Hard Mode unlocks per character once you reach **5 Victories** on standard difficulty.
-* **Mage Class Buffs**
-  * Increased base Health and Defense stats for the Mage to improve solo viability.
-* **Save Data & Persistent Progression**
-  * Player stats and win counts now automatically save to disk (`user://save_data.cfg`) and persist across sessions.
-* **UI & Visual Refresh**
-  * Cleaned up character select layout with clear `WINS: X` indicators and dynamic hero-themed selection borders.
+* **Party Mode**
+  * Added Party Mode where the three challengers unite as a party with a rebalanced boss, scene, and turn-based battle system.
+* **Settings & Particles**
+  * Fixed the particle slider to effectively reduce all particle effects and added a clean text label.
+* **Balance & Tweaks**
+  * Nerfed Tank health and defense stats, and removed the HP cost penalty from *Heal Bloom* during Hard Mode.
+* **Visual Polish**
+  * Reworked and polished character sprites and action animations for the Fighter, Mage, and Tank, along with smooth slide-in menu transitions.
