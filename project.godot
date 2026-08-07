@@ -13,9 +13,14 @@ config_version=5
 config/name="Boss Fight Sim"
 config/description="3 people of differing background fight a powerful boss.  Can you help them win against the powerful boss?"
 config/version="1.1.0"
+config/tags=PackedStringArray("arcade", "rpg")
 run/main_scene="uid://bosxwecsb28nw"
 config/features=PackedStringArray("4.7", "Forward Plus")
 config/icon="uid://rjf7t74q5rd0"
+
+[aseprite]
+
+import/import_plugin/default_automatic_importer="SpriteFrames"
 
 [audio]
 
@@ -36,6 +41,10 @@ window/size/viewport_height=180
 window/size/window_width_override=1280
 window/size/window_height_override=720
 window/stretch/mode="canvas_items"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/AsepriteWizard/plugin.cfg")
 
 [input]
 
