@@ -30,7 +30,7 @@ length = 0.001
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Torso:position")
+tracks/0/path = NodePath("BossPuppet/Torso:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -42,7 +42,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Torso:rotation")
+tracks/1/path = NodePath("BossPuppet/Torso:rotation")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -54,7 +54,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Torso/Head:position")
+tracks/2/path = NodePath("BossPuppet/Torso/Head:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -66,7 +66,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Torso/Head:rotation")
+tracks/3/path = NodePath("BossPuppet/Torso/Head:rotation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -78,7 +78,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Torso/RightArm:rotation")
+tracks/4/path = NodePath("BossPuppet/Torso/RightArm:rotation")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -90,7 +90,7 @@ tracks/4/keys = {
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Torso/LeftArm:rotation")
+tracks/5/path = NodePath("BossPuppet/Torso/LeftArm:rotation")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
@@ -102,7 +102,7 @@ tracks/5/keys = {
 tracks/6/type = "value"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Legs:position")
+tracks/6/path = NodePath("BossPuppet/Legs:position")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
@@ -120,7 +120,7 @@ step = 0.004166667
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
-tracks/0/path = NodePath("Torso:position")
+tracks/0/path = NodePath("BossPuppet/Torso:position")
 tracks/0/interp = 2
 tracks/0/loop_wrap = true
 tracks/0/keys = {
@@ -132,7 +132,7 @@ tracks/0/keys = {
 tracks/1/type = "value"
 tracks/1/imported = false
 tracks/1/enabled = true
-tracks/1/path = NodePath("Torso:rotation")
+tracks/1/path = NodePath("BossPuppet/Torso:rotation")
 tracks/1/interp = 2
 tracks/1/loop_wrap = true
 tracks/1/keys = {
@@ -144,7 +144,7 @@ tracks/1/keys = {
 tracks/2/type = "value"
 tracks/2/imported = false
 tracks/2/enabled = true
-tracks/2/path = NodePath("Torso/Head:position")
+tracks/2/path = NodePath("BossPuppet/Torso/Head:position")
 tracks/2/interp = 2
 tracks/2/loop_wrap = true
 tracks/2/keys = {
@@ -156,7 +156,7 @@ tracks/2/keys = {
 tracks/3/type = "value"
 tracks/3/imported = false
 tracks/3/enabled = true
-tracks/3/path = NodePath("Torso/Head:rotation")
+tracks/3/path = NodePath("BossPuppet/Torso/Head:rotation")
 tracks/3/interp = 2
 tracks/3/loop_wrap = true
 tracks/3/keys = {
@@ -168,7 +168,7 @@ tracks/3/keys = {
 tracks/4/type = "value"
 tracks/4/imported = false
 tracks/4/enabled = true
-tracks/4/path = NodePath("Torso/RightArm:rotation")
+tracks/4/path = NodePath("BossPuppet/Torso/RightArm:rotation")
 tracks/4/interp = 2
 tracks/4/loop_wrap = true
 tracks/4/keys = {
@@ -180,7 +180,7 @@ tracks/4/keys = {
 tracks/5/type = "value"
 tracks/5/imported = false
 tracks/5/enabled = true
-tracks/5/path = NodePath("Torso/LeftArm:rotation")
+tracks/5/path = NodePath("BossPuppet/Torso/LeftArm:rotation")
 tracks/5/interp = 2
 tracks/5/loop_wrap = true
 tracks/5/keys = {
@@ -192,7 +192,7 @@ tracks/5/keys = {
 tracks/6/type = "value"
 tracks/6/imported = false
 tracks/6/enabled = true
-tracks/6/path = NodePath("Legs:position")
+tracks/6/path = NodePath("BossPuppet/Legs:position")
 tracks/6/interp = 2
 tracks/6/loop_wrap = true
 tracks/6/keys = {
@@ -472,32 +472,40 @@ grow_vertical = 2
 color = Color(0, 0, 0, 1)
 
 [node name="CPUParticles2D" type="CPUParticles2D" parent="ArenaWorld" unique_id=244107426]
-position = Vector2(160, 90)
-amount = 10000
+z_index = -999
+position = Vector2(160, 180)
+amount = 2500
+lifetime = 3.8
 emission_shape = 3
-emission_rect_extents = Vector2(160, 90)
-gravity = Vector2(0, -980)
+emission_rect_extents = Vector2(160, 1)
+gravity = Vector2(0, -25)
 script = ExtResource("1_ux667")
 
 [node name="Boss" type="Node2D" parent="ArenaWorld" unique_id=1708080587]
 position = Vector2(0, 28)
 script = ExtResource("1_caalk")
 
-[node name="Legs" type="Sprite2D" parent="ArenaWorld/Boss" unique_id=1385858748]
+[node name="AnimationPlayer" type="AnimationPlayer" parent="ArenaWorld/Boss" unique_id=1510053171]
+libraries/ = SubResource("AnimationLibrary_g30fm")
+
+[node name="BossPuppet" type="CanvasGroup" parent="ArenaWorld/Boss" unique_id=1572540504]
+texture_filter = 1
+
+[node name="Legs" type="Sprite2D" parent="ArenaWorld/Boss/BossPuppet" unique_id=1385858748]
 texture_filter = 1
 position = Vector2(258, 63)
 texture = ExtResource("2_qpy0n")
 region_enabled = true
 region_rect = Rect2(7, 34, 26, 27)
 
-[node name="Torso" type="Sprite2D" parent="ArenaWorld/Boss" unique_id=1882879488]
+[node name="Torso" type="Sprite2D" parent="ArenaWorld/Boss/BossPuppet" unique_id=1882879488]
 texture_filter = 1
 position = Vector2(259, 43)
 texture = ExtResource("3_epuic")
 region_enabled = true
 region_rect = Rect2(8, 13, 25, 29)
 
-[node name="LeftArm" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=1281725456]
+[node name="LeftArm" type="Sprite2D" parent="ArenaWorld/Boss/BossPuppet/Torso" unique_id=1281725456]
 z_index = -1
 texture_filter = 1
 position = Vector2(-9, -5)
@@ -506,21 +514,20 @@ offset = Vector2(-3, 9)
 region_enabled = true
 region_rect = Rect2(0, 18, 16, 26)
 
-[node name="Head" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=2008986176]
+[node name="Head" type="Sprite2D" parent="ArenaWorld/Boss/BossPuppet/Torso" unique_id=2008986176]
+texture_filter = 1
 position = Vector2(-1, -18)
 texture = ExtResource("5_bh1wx")
 region_enabled = true
 region_rect = Rect2(2, 0, 35, 18)
 
-[node name="RightArm" type="Sprite2D" parent="ArenaWorld/Boss/Torso" unique_id=604459875]
+[node name="RightArm" type="Sprite2D" parent="ArenaWorld/Boss/BossPuppet/Torso" unique_id=604459875]
+texture_filter = 1
 position = Vector2(6, -10)
 texture = ExtResource("6_dukdm")
 offset = Vector2(4, 13)
 region_enabled = true
 region_rect = Rect2(25, 14, 13, 35)
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="ArenaWorld/Boss" unique_id=1510053171]
-libraries/ = SubResource("AnimationLibrary_g30fm")
 
 [node name="BossHPLabel" type="Label" parent="ArenaWorld/Boss" unique_id=192275844]
 texture_filter = 1

@@ -5,7 +5,7 @@ const FighterBPScript = preload("res://Scripts/fighter_bp.gd")
 const MageSpellsScript = preload("res://Scripts/mage_spells.gd")
 
 # --- ENUMS & BATTLE STATES ---
-enum BattleState { PLAYER_TURN, SPELL_MENU, TARGET_SELECT, BOSS_TURN, VICTORY, DEFEAT }
+enum BattleState { PLAYER_TURN, SPELL_MENU, TARGET_SELECT, EXECUTING_TURNS, BOSS_TURN, VICTORY, DEFEAT }
 var current_state: BattleState = BattleState.PLAYER_TURN
 
 # Turn & Navigation
@@ -19,9 +19,10 @@ var selected_spell_index: int = 0
 var selected_target_index: int = 0
 var pending_spell: Dictionary = {}
 
-# --- TANK TAUNT / AGGRO SYSTEM ---
+# --- COMMAND QUEUE & TANK TAUNT ---
+var selected_actions: Array = []
 var is_tank_taunting: bool = false
-@export var taunt_success_chance: float = 0.65 # 65% success chance
+@export var taunt_success_chance: float = 0.65
 
 # --- ONREADY UI & SCENE NODES ---
 @onready var action_menu: Control = $"../UILayer/ActionMenu"
@@ -48,7 +49,7 @@ var is_tank_taunting: bool = false
 		"name": "Fighter",
 		"sprite": $"../ArenaWorld/FighterSprite",
 		"slot": $"../UILayer/PartyStatusPanel/VBoxContainer/FighterSlot/HBoxContainer",
-		"hp": 115, "max_hp": 115, 
+		"hp": 115, "max_hp": 115,
 		"is_alive": true, "defending": false,
 		"attack_power": 20, "defense": 12, "speed": 14
 	},
@@ -92,16 +93,13 @@ func _ready() -> void:
 		boss.boss_defeated.connect(_on_boss_defeated)
 
 	update_party_ui()
-	update_boss_hp_ui() # Initial Boss HP Setup
+	update_boss_hp_ui()
 	update_cursor_ui()
 	start_player_turn()
 
 
 func update_boss_hp_ui() -> void:
-	if not boss:
-		return
-
-	# Fallback if boss_hp_label was null during onready
+	if not boss: return
 	if not boss_hp_label and boss.has_node("BossHPLabel"):
 		boss_hp_label = boss.get_node("BossHPLabel") as Label
 
@@ -114,25 +112,17 @@ func update_boss_hp_ui() -> void:
 func damage_boss(amount: int) -> void:
 	if boss and boss.has_method("take_damage"):
 		boss.take_damage(amount)
-		update_boss_hp_ui() # Instantly update label after applying damage
+		update_boss_hp_ui()
 
 
 func _get_hero_component(hero_dict: Dictionary, node_name: String) -> Node:
-	if hero_dict.is_empty():
-		return null
-		
+	if hero_dict.is_empty(): return null
 	var sprite = hero_dict.get("sprite")
-	
-	if sprite and sprite.has_node(node_name):
-		return sprite.get_node(node_name)
-		
-	if has_node("../ArenaWorld/" + node_name):
-		return get_node("../ArenaWorld/" + node_name)
-		
+	if sprite and sprite.has_node(node_name): return sprite.get_node(node_name)
+	if has_node("../ArenaWorld/" + node_name): return get_node("../ArenaWorld/" + node_name)
 	if sprite:
 		var found = sprite.find_child(node_name, true, false)
 		if found: return found
-
 	return null
 
 
@@ -165,18 +155,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("confirm"):
 		get_viewport().set_input_as_handled()
 		_play_sfx(confirm_sound)
-		execute_player_choice()
+		handle_action_selection()
 
 	elif event.is_action_pressed("cancel"):
 		if current_party_index > 0:
 			get_viewport().set_input_as_handled()
 			current_party_index -= 1
+			selected_actions.pop_back() # Remove previous choice from queue
 			set_dialogue_text("Re-choosing action for " + party_members[current_party_index]["name"])
 			update_cursor_ui()
 
 
-# --- FIGHTER LOGIC ---
-
+# --- FIGHTER MENU SETUP ---
 func _setup_fighter_menu() -> void:
 	var fighter_bp = _get_hero_component(party_members[0], "FighterBP")
 	var actions_count = fighter_bp.queued_actions if fighter_bp else 1
@@ -185,47 +175,7 @@ func _setup_fighter_menu() -> void:
 	if skill_button: skill_button.text = "Brave (-1)"
 
 
-func _execute_fighter_action() -> void:
-	var hero = party_members[0]
-	var fighter_bp = _get_hero_component(hero, "FighterBP")
-
-	match selected_action_index:
-		0: # ATTACK
-			action_menu.hide()
-			var total_hits = fighter_bp.queued_actions if fighter_bp else 1
-			set_dialogue_text("Fighter attacks " + str(total_hits) + " time(s)!")
-
-			for i in range(total_hits):
-				var mult = 1.5 if (fighter_bp and fighter_bp.current_stance == FighterBPScript.Stance.BERSERK) else 1.0
-				damage_boss(int(hero["attack_power"] * mult))
-				await animate_lunge(hero, "attack")
-				await get_tree().create_timer(0.4).timeout
-
-			if fighter_bp:
-				fighter_bp.queued_actions = 1
-			await get_tree().create_timer(0.8).timeout
-			advance_turn()
-
-		1: # DEFAULT (+1 BP)
-			if fighter_bp:
-				fighter_bp.perform_default()
-			hero["defending"] = true
-			update_party_ui()
-			set_dialogue_text("Fighter defaults and gains 1 BP!")
-			await get_tree().create_timer(1.0).timeout
-			advance_turn()
-
-		2: # BRAVE (-1 BP)
-			if fighter_bp:
-				if fighter_bp.try_brave():
-					set_dialogue_text("BRAVE! Queued attacks: " + str(fighter_bp.queued_actions))
-					update_party_ui()
-					_setup_fighter_menu()
-				else:
-					set_dialogue_text("CANNOT BRAVE! Limit Reached.")
-
-
-# --- MAGE LOGIC ---
+# --- MAGE SPELL MENU SETUP ---
 func open_spell_menu() -> void:
 	current_state = BattleState.SPELL_MENU
 	selected_spell_index = 0
@@ -252,9 +202,7 @@ func _populate_spell_menu_ui() -> void:
 		var spell = mage_node.get_spell(i)
 		var btn = Button.new()
 		btn.text = spell["name"] + " (" + str(spell["cost"]) + " MP)"
-		
-		if pixel_font:
-			btn.add_theme_font_override("font", pixel_font)
+		if pixel_font: btn.add_theme_font_override("font", pixel_font)
 		btn.add_theme_font_size_override("font_size", 8)
 		
 		var empty_style = StyleBoxEmpty.new()
@@ -262,7 +210,6 @@ func _populate_spell_menu_ui() -> void:
 		btn.add_theme_stylebox_override("focus", empty_style)
 		btn.add_theme_stylebox_override("hover", empty_style)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-
 		spell_vbox.add_child(btn)
 
 
@@ -271,7 +218,6 @@ func _update_spell_selection_display() -> void:
 	if not mage_node: return
 
 	selected_spell_index = clampi(selected_spell_index, 0, mage_node.get_spell_count() - 1)
-
 	var spell = mage_node.get_spell(selected_spell_index)
 	set_dialogue_text("[" + spell["name"] + "]: " + spell["desc"])
 
@@ -315,45 +261,13 @@ func _handle_spell_menu_input(event: InputEvent) -> void:
 			pending_spell = spell
 			if spell_menu: spell_menu.hide()
 			open_target_selection()
-		elif spell["name"] == "Overcharge":
-			mage["mp"] -= spell["cost"]
-			if spell_menu: spell_menu.hide()
-			mage_node.is_overcharged = true
-			set_dialogue_text("Mage casts Overcharge! Next delayed spell damage boosted!")
-			await get_tree().create_timer(1.2).timeout
-			update_party_ui()
-			advance_turn()
 		else:
-			mage["mp"] -= spell["cost"]
 			if spell_menu: spell_menu.hide()
-
-			set_dialogue_text("Mage casts " + spell["name"] + "!")
-			await animate_levitate_slam(mage)
-
-			if spell["type"] == "delayed_attack":
-				var was_overcharged = mage_node.queue_delayed_spell(spell, mage["magic_power"])
-				
-				if was_overcharged:
-					set_dialogue_text("[OVERCHARGED] " + spell["name"] + " queued for detonation! (+50% Power)")
-				else:
-					set_dialogue_text(spell["name"] + " queued for detonation!")
-					
-				await get_tree().create_timer(1.4).timeout
-
-			elif spell["type"] == "instant_attack":
-				var final_dmg = int(mage["magic_power"] * spell["power"])
-				
-				# If Spark is cast while delayed spells are active, apply the 1.75x chain multiplier
-				if spell["name"] == "Spark" and not mage_node.active_delayed_spells.is_empty():
-					final_dmg = int(final_dmg * 1.75)
-					set_dialogue_text("CHAIN REACTION! Spark amplified for 1.75x damage!")
-					await get_tree().create_timer(1.2).timeout
-
-				damage_boss(final_dmg)
-
-			update_party_ui()
-			await get_tree().create_timer(0.8).timeout
-			advance_turn()
+			commit_hero_action({
+				"hero": mage,
+				"type": "spell",
+				"spell": spell
+			})
 
 	elif event.is_action_pressed("cancel"):
 		if spell_menu: spell_menu.hide()
@@ -362,14 +276,12 @@ func _handle_spell_menu_input(event: InputEvent) -> void:
 		update_cursor_ui()
 
 
-# --- TARGET SELECTION LOGIC (HEAL BLOOM) ---
-
+# --- TARGET SELECTION (HEAL BLOOM) ---
 func open_target_selection() -> void:
 	current_state = BattleState.TARGET_SELECT
 	selected_target_index = 0
 	while selected_target_index < party_members.size() and not party_members[selected_target_index]["is_alive"]:
 		selected_target_index += 1
-		
 	update_target_cursor_ui()
 
 
@@ -378,17 +290,24 @@ func _handle_target_select_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		_cycle_target_selection(-1)
 		_play_sfx(hover_sound)
-
 	elif event.is_action_pressed("down"):
 		get_viewport().set_input_as_handled()
 		_cycle_target_selection(1)
 		_play_sfx(hover_sound)
-
 	elif event.is_action_pressed("confirm"):
 		get_viewport().set_input_as_handled()
 		_play_sfx(confirm_sound)
-		_cast_targeted_heal()
-
+		var target = party_members[selected_target_index]
+		var mage = party_members[1]
+		var spell = pending_spell
+		pending_spell = {}
+		
+		commit_hero_action({
+			"hero": mage,
+			"type": "heal",
+			"spell": spell,
+			"target": target
+		})
 	elif event.is_action_pressed("cancel"):
 		get_viewport().set_input_as_handled()
 		pending_spell = {}
@@ -408,37 +327,55 @@ func _cycle_target_selection(direction: int) -> void:
 func update_target_cursor_ui() -> void:
 	var target = party_members[selected_target_index]
 	set_dialogue_text("Select ally to heal: " + target["name"] + " (HP: " + str(target["hp"]) + "/" + str(target["max_hp"]) + ")")
-
 	for i in range(party_members.size()):
 		var slot = party_members[i]["slot"]
 		if slot:
 			var cursor_lbl = slot.get_node_or_null("CursorLabel")
-			if cursor_lbl:
-				cursor_lbl.text = "▶" if i == selected_target_index else " "
+			if cursor_lbl: cursor_lbl.text = "▶" if i == selected_target_index else " "
 
 
-func _cast_targeted_heal() -> void:
-	var mage = party_members[1]
-	var target = party_members[selected_target_index]
-
-	mage["mp"] -= pending_spell["cost"]
+# --- HANDLING ACTION SUBMISSION FOR CURRENT HERO ---
+func handle_action_selection() -> void:
+	var hero = party_members[current_party_index]
 	
-	set_dialogue_text("Mage casts " + pending_spell["name"] + " on " + target["name"] + "!")
-	await animate_lunge(mage, "cast")
+	if hero["key"] == "fighter":
+		var fighter_bp = _get_hero_component(hero, "FighterBP")
+		match selected_action_index:
+			0: # ATTACK
+				commit_hero_action({"hero": hero, "type": "fighter_attack"})
+			1: # DEFAULT (+1 BP)
+				commit_hero_action({"hero": hero, "type": "fighter_default"})
+			2: # BRAVE (-1 BP)
+				if fighter_bp:
+					if fighter_bp.try_brave():
+						set_dialogue_text("BRAVE!\nQueued attacks: " + str(fighter_bp.queued_actions))
+						update_party_ui()
+						_setup_fighter_menu()
+					else:
+						set_dialogue_text("CANNOT BRAVE! Limit Reached.")
+		return
 
-	var heal_amount = int(mage["magic_power"] * 1.5 * pending_spell.get("power", 1.0))
-	target["hp"] = min(target["max_hp"], target["hp"] + heal_amount)
-	
-	set_dialogue_text(target["name"] + " restored " + str(heal_amount) + " HP!")
-	
-	pending_spell = {}
-	update_party_ui()
-	await get_tree().create_timer(1.2).timeout
-	advance_turn()
+	match selected_action_index:
+		0: # ATTACK
+			commit_hero_action({"hero": hero, "type": "attack"})
+		1: # DEFEND
+			commit_hero_action({"hero": hero, "type": "defend"})
+		2: # SKILL
+			if hero["key"] == "mage":
+				open_spell_menu()
+			elif hero["key"] == "tank":
+				var roll = randf()
+				commit_hero_action({"hero": hero, "type": "tank_taunt", "success": roll <= taunt_success_chance})
 
 
-# --- GENERAL TURN FLOW ---
+func commit_hero_action(action_data: Dictionary) -> void:
+	action_menu.hide()
+	selected_actions.append(action_data)
+	current_party_index += 1
+	start_player_turn()
 
+
+# --- TURN FLOW & BATCH EXECUTION ---
 func start_player_turn() -> void:
 	if is_battle_over: return
 
@@ -446,48 +383,42 @@ func start_player_turn() -> void:
 	while current_party_index < party_members.size() and not party_members[current_party_index]["is_alive"]:
 		current_party_index += 1
 
+	# If all living members have locked in their choices, begin execution phase
 	if current_party_index >= party_members.size():
-		execute_boss_turn()
+		execute_batched_turns()
 		return
 
 	var hero = party_members[current_party_index]
 
-	# --- FIGHTER NEGATIVE BP CHECK ---
+	# Handle Fighter negative BP freeze check
 	if hero["key"] == "fighter":
 		var fighter_bp = _get_hero_component(hero, "FighterBP")
 		if fighter_bp and fighter_bp.current_bp < 0:
 			action_menu.hide()
-			
-			# Recover +1 BP towards 0
 			fighter_bp.current_bp += 1
-			
-			set_dialogue_text("Fighter is frozen in Negative BP (" + str(fighter_bp.current_bp) + ")! Skipping turn to recover...")
+			set_dialogue_text("Fighter is frozen in Negative BP (" + str(fighter_bp.current_bp) + ")!\nSkipping action...")
 			update_party_ui()
+			await get_tree().create_timer(1.2).timeout
 			
-			await get_tree().create_timer(1.4).timeout
-			advance_turn()
+			commit_hero_action({"hero": hero, "type": "skip"})
 			return
 
-	# --- MAGE NATURAL MANA REGEN (+10 MP) ---
+	# Mage natural mana regeneration (+10 MP) at start of round input
 	if hero["key"] == "mage":
 		if hero["mp"] < hero["max_mp"]:
 			var prev_mp = hero["mp"]
 			hero["mp"] = min(hero["max_mp"], hero["mp"] + 10)
-			var mp_gained = hero["mp"] - prev_mp
-			
 			update_party_ui()
-			set_dialogue_text("Mage naturally regenerated +" + str(mp_gained) + " MP!")
-			await get_tree().create_timer(1.0).timeout
+			set_dialogue_text("Mage naturally regenerated +" + str(hero["mp"] - prev_mp) + " MP!")
+			await get_tree().create_timer(0.8).timeout
 
 	selected_action_index = 0
 	current_state = BattleState.PLAYER_TURN
 	action_menu.show()
-	var hero_key = hero["key"]
 
-	# --- SWAP UI THEME FOR ACTIVE HERO ---
 	var ui_styler = $"../UILayer"
 	if ui_styler and ui_styler.has_method("set_active_hero_theme"):
-		ui_styler.set_active_hero_theme(hero_key)
+		ui_styler.set_active_hero_theme(hero["key"])
 
 	if hero["key"] == "fighter":
 		_setup_fighter_menu()
@@ -501,73 +432,138 @@ func start_player_turn() -> void:
 		if skill_button: skill_button.text = "Taunt"
 
 	set_dialogue_text("Select action for " + hero["name"] + "...")
-
 	await get_tree().process_frame
 	update_cursor_ui()
 
 
-func execute_player_choice() -> void:
-	var hero = party_members[current_party_index]
-	hero["defending"] = false
+func execute_batched_turns() -> void:
+	current_state = BattleState.EXECUTING_TURNS
+	action_menu.hide()
 
-	if hero["key"] == "fighter":
-		_execute_fighter_action()
-		return
+	var detonated_this_turn: Array = []
 
-	match selected_action_index:
-		0: # ATTACK
-			action_menu.hide()
-			set_dialogue_text(hero["name"] + " attacks!")
-			await animate_lunge(hero, "attack")
-			damage_boss(hero["attack_power"])
-			await get_tree().create_timer(1.0).timeout
-			advance_turn()
+	for action in selected_actions:
+		if is_battle_over: break
+		var hero = action["hero"]
+		if not hero["is_alive"]: continue
+		hero["defending"] = false
 
-		1: # DEFEND
-			hero["defending"] = true
-			if hero["key"] == "mage":
-				hero["mp"] = min(hero["mp"] + 15, hero["max_mp"])
-			update_party_ui()
-			set_dialogue_text(hero["name"] + " guards!")
-			await get_tree().create_timer(1.0).timeout
-			advance_turn()
+		# TICK DELAYED SPELLS ON THE MAGE'S TURN BEFORE THE MAGE EXECUTES THEIR ACTION
+		if hero["key"] == "mage":
+			var mage_node = _get_hero_component(hero, "MageSpells")
+			if mage_node and mage_node.has_method("process_turn_tick"):
+				detonated_this_turn = mage_node.process_turn_tick()
+				for spell in detonated_this_turn:
+					if spell.get("is_overcharged", false):
+						set_dialogue_text("OVERCHARGED DETONATION!\n" + str(spell["name"]) + " explodes for " + str(spell["damage"]) + " damage!")
+					else:
+						set_dialogue_text("DETONATION!\n" + str(spell["name"]) + " explodes for " + str(spell["damage"]) + " damage!")
+					damage_boss(spell["damage"])
+					await get_tree().create_timer(1.4).timeout
 
-		2: # SKILL
-			if hero["key"] == "mage":
-				open_spell_menu()
-			elif hero["key"] == "tank":
-				action_menu.hide()
-				var roll = randf()
-				if roll <= taunt_success_chance:
+		match action["type"]:
+			"skip":
+				pass
+			"attack":
+				set_dialogue_text(hero["name"] + " attacks!")
+				await animate_lunge(hero, "attack")
+				damage_boss(hero["attack_power"])
+				await get_tree().create_timer(0.8).timeout
+			"defend":
+				hero["defending"] = true
+				if hero["key"] == "mage":
+					hero["mp"] = min(hero["mp"] + 15, hero["max_mp"])
+				update_party_ui()
+				set_dialogue_text(hero["name"] + " guards!")
+				await get_tree().create_timer(0.8).timeout
+			"fighter_default":
+				var fighter_bp = _get_hero_component(hero, "FighterBP")
+				if fighter_bp: fighter_bp.perform_default()
+				hero["defending"] = true
+				update_party_ui()
+				set_dialogue_text("Fighter defaults and gains 1 BP!")
+				await get_tree().create_timer(1.0).timeout
+			"fighter_attack":
+				var fighter_bp = _get_hero_component(hero, "FighterBP")
+				var total_hits = fighter_bp.queued_actions if fighter_bp else 1
+				set_dialogue_text("Fighter attacks " + str(total_hits) + " time(s)!")
+				for i in range(total_hits):
+					var mult = 1.5 if (fighter_bp and fighter_bp.current_stance == FighterBPScript.Stance.BERSERK) else 1.0
+					damage_boss(int(hero["attack_power"] * mult))
+					await animate_lunge(hero, "attack")
+					await get_tree().create_timer(0.4).timeout
+				if fighter_bp: fighter_bp.queued_actions = 1
+				await get_tree().create_timer(0.8).timeout
+			"tank_taunt":
+				if action["success"]:
 					is_tank_taunting = true
 					hero["defending"] = true
-					set_dialogue_text("TAUNT SUCCESSFUL! Boss aggro locked on Tank!")
+					set_dialogue_text("TAUNT SUCCESSFUL!\nBoss aggro locked on Tank!")
 				else:
 					is_tank_taunting = false
-					hero["defending"] = false
-					set_dialogue_text("TAUNT FAILED! The Boss ignores the Tank!")
-				
+					set_dialogue_text("TAUNT FAILED!\nThe Boss ignores the Tank!")
 				update_party_ui()
 				await get_tree().create_timer(1.4).timeout
-				advance_turn()
+			"heal":
+				var spell = action["spell"]
+				var target = action["target"]
+				hero["mp"] -= spell["cost"]
+				set_dialogue_text("Mage casts " + spell["name"] + " on " + target["name"] + "!")
+				await animate_lunge(hero, "cast")
+				var heal_amount = int(hero["magic_power"] * 1.5 * spell.get("power", 1.0))
+				target["hp"] = min(target["max_hp"], target["hp"] + heal_amount)
+				set_dialogue_text(target["name"] + " restored " + str(heal_amount) + " HP!")
+				update_party_ui()
+				await get_tree().create_timer(1.2).timeout
+			"spell":
+				var spell = action["spell"]
+				hero["mp"] -= spell["cost"]
+				set_dialogue_text("Mage casts " + spell["name"] + "!")
+				await animate_levitate_slam(hero)
 
+				var mage_node = _get_hero_component(party_members[1], "MageSpells")
+				if spell["name"] == "Overcharge":
+					if mage_node: mage_node.is_overcharged = true
+					set_dialogue_text("Mage casts Overcharge!\nNext delayed spell boosted!")
+					await get_tree().create_timer(1.2).timeout
+				elif spell["type"] == "delayed_attack" and mage_node:
+					var was_overcharged = mage_node.queue_delayed_spell(spell, hero["magic_power"])
+					if was_overcharged:
+						set_dialogue_text("[OVERCHARGED] " + spell["name"] + " queued!\n(+50% Power)")
+					else:
+						set_dialogue_text(spell["name"] + " queued for detonation!")
+					await get_tree().create_timer(1.4).timeout
+				elif spell["type"] == "instant_attack":
+					var base_power: float = float(spell.get("power", 1.0))
+					var final_dmg: int = int(float(hero["magic_power"]) * base_power)
 
-func advance_turn() -> void:
-	# Tick and process delayed spell countdowns at turn transition
-	var mage_node = _get_hero_component(party_members[1], "MageSpells")
-	if mage_node and mage_node.has_method("process_turn_tick"):
-		var detonated_spells = mage_node.process_turn_tick()
-		for spell in detonated_spells:
-			if spell.get("is_overcharged", false):
-				set_dialogue_text("OVERCHARGED DETONATION! " + str(spell["name"]) + " explodes for " + str(spell["damage"]) + " damage!")
-			else:
-				set_dialogue_text("DETONATION! " + str(spell["name"]) + " explodes for " + str(spell["damage"]) + " damage!")
-				
-			damage_boss(spell["damage"])
-			await get_tree().create_timer(1.4).timeout
+					if spell["name"] == "Spark":
+						var chained_name: String = ""
 
-	current_party_index += 1
-	start_player_turn()
+						# Priority 1: Check if a spell detonated on this turn
+						if not detonated_this_turn.is_empty():
+							chained_name = str(detonated_this_turn[0].get("name", "Detonated Spell"))
+						# Priority 2: Check if a delayed spell is actively brewing in queue
+						elif mage_node and not mage_node.active_delayed_spells.is_empty():
+							chained_name = str(mage_node.active_delayed_spells[0].get("name", "Delayed Spell"))
+						# Priority 3: Check if a delayed spell was queued in selected_actions this round
+						else:
+							for act in selected_actions:
+								if act.get("type") == "spell" and act.get("spell", {}).get("type") == "delayed_attack":
+									chained_name = str(act["spell"].get("name", "Delayed Spell"))
+									break
+
+						if chained_name != "":
+							final_dmg = int(float(hero["magic_power"]) * base_power * 1.75)
+							set_dialogue_text("SPARK POWERED UP!\nChained with " + chained_name + " for 1.75x damage!")
+							await get_tree().create_timer(1.4).timeout
+
+					damage_boss(final_dmg)
+				update_party_ui()
+				await get_tree().create_timer(0.8).timeout
+
+	selected_actions.clear()
+	execute_boss_turn()
 
 
 func execute_boss_turn() -> void:
@@ -585,7 +581,6 @@ func execute_boss_turn() -> void:
 		return
 
 	var target = null
-
 	var tank_member = party_members[2]
 	if is_tank_taunting and tank_member["is_alive"]:
 		target = tank_member
@@ -596,12 +591,10 @@ func execute_boss_turn() -> void:
 			var turn_data = await boss.perform_turn(living_party)
 			var chosen_target = turn_data.get("target", living_party.pick_random())
 			var target_key = chosen_target.get("key", "") if typeof(chosen_target) == TYPE_DICTIONARY else ""
-			
 			for member in party_members:
 				if member["key"] == target_key:
 					target = member
 					break
-
 		if not target and not living_party.is_empty():
 			target = living_party.pick_random()
 
@@ -611,7 +604,6 @@ func execute_boss_turn() -> void:
 
 	is_tank_taunting = false
 	update_party_ui()
-
 	await get_tree().create_timer(1.2).timeout
 
 	current_party_index = 0
@@ -652,47 +644,35 @@ func update_party_ui() -> void:
 		var slot = member["slot"]
 		if not slot: continue
 
-		# --- HP LABEL ---
 		var hp_label = slot.get_node_or_null("HPLabel")
 		if not hp_label: hp_label = slot.get_node_or_null("HealthLabel")
 		if hp_label:
 			hp_label.text = "HP: " + str(member["hp"]) + "/" + str(member["max_hp"])
 
-		# --- MP LABEL ---
 		var mp_label = slot.get_node_or_null("MPLabel")
 		if mp_label:
 			if member.has("mp"):
-				var current_mp = member.get("mp", 0)
-				var max_mp = member.get("max_mp", 100)
-				mp_label.text = "MP: " + str(current_mp) + "/" + str(max_mp)
+				mp_label.text = "MP: " + str(member.get("mp", 0)) + "/" + str(member.get("max_mp", 100))
 			else:
 				mp_label.text = ""
 
-		# --- STATUS LABELS ---
 		var status_lbl = slot.get_node_or_null("StatusLabel")
-
 		if member["key"] == "fighter":
 			var bp_node = _get_hero_component(member, "FighterBP")
 			var bp_lbl = slot.get_node_or_null("BPLabel")
-			if bp_lbl and bp_node:
-				bp_lbl.text = "BP: " + str(bp_node.current_bp)
+			if bp_lbl and bp_node: bp_lbl.text = "BP: " + str(bp_node.current_bp)
 			if status_lbl and bp_node:
 				var idx = clampi(bp_node.current_stance, 0, stances_map.size() - 1)
 				status_lbl.text = stances_map[idx]
-
 		elif member["key"] == "mage":
-			if status_lbl:
-				status_lbl.text = ""
-
+			if status_lbl: status_lbl.text = ""
 		elif member["key"] == "tank":
-			if status_lbl:
-				status_lbl.text = "ACTIVE" if is_tank_taunting else "INACTIVE"
+			if status_lbl: status_lbl.text = "ACTIVE" if is_tank_taunting else "INACTIVE"
 
 
 func animate_lunge(hero: Dictionary, anim_type: String) -> void:
 	var sprite = hero["sprite"]
 	if not sprite or not member_home_positions.has(hero["key"]): return
-
 	var original_pos: Vector2 = member_home_positions[hero["key"]]
 	var lunge_pos: Vector2 = original_pos + Vector2(40, 0)
 
@@ -710,12 +690,10 @@ func animate_lunge(hero: Dictionary, anim_type: String) -> void:
 func animate_levitate_slam(hero: Dictionary) -> void:
 	var sprite = hero.get("sprite")
 	if not sprite or not member_home_positions.has(hero["key"]): return
-
 	var original_pos: Vector2 = member_home_positions[hero["key"]]
 	var apex_pos: Vector2 = original_pos + Vector2(0, -32)
 
 	_play_hero_anim(hero, "cast")
-	
 	var float_up = create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	float_up.tween_property(sprite, "position", apex_pos, 0.35)
 	await float_up.finished
@@ -724,25 +702,15 @@ func animate_levitate_slam(hero: Dictionary) -> void:
 	slam_down.tween_property(sprite, "position", original_pos, 0.12)
 	await slam_down.finished
 
-	if sprite.has_signal("animation_finished"):
-		await sprite.animation_finished
-
+	if sprite.has_signal("animation_finished"): await sprite.animation_finished
 	_play_hero_anim(hero, "idle")
 
 
 func _play_hero_anim(hero: Dictionary, anim_type: String) -> void:
 	var sprite = hero.get("sprite")
-	if not sprite or not sprite.has_method("play"):
-		return
-
+	if not sprite or not sprite.has_method("play"): return
 	var key = hero.get("key", "").to_lower()
-	var full_anim_name: String = ""
-
-	if key == "mage" and anim_type == "cast":
-		full_anim_name = "mage_cast"
-	else:
-		full_anim_name = key + "_" + anim_type
-
+	var full_anim_name = ("mage_cast" if (key == "mage" and anim_type == "cast") else key + "_" + anim_type)
 	if sprite.sprite_frames and sprite.sprite_frames.has_animation(full_anim_name):
 		sprite.play(full_anim_name)
 	else:
