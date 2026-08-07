@@ -52,13 +52,13 @@ Alternatively Mac users are free to pay for the 100 dollar subscription license 
 
 ---
 
-## ✨ Recent Updates (v1.4.0 Overhaul)
+## ✨ Recent Updates (v1.5.0 Patch)
 
-* **Party Mode**
-  * Added Party Mode where the three challengers unite as a party with a rebalanced boss, scene, and turn-based battle system.
-* **Settings & Particles**
-  * Fixed the particle slider to effectively reduce all particle effects and added a clean text label.
-* **Balance & Tweaks**
-  * Nerfed Tank health and defense stats, and removed the HP cost penalty from *Heal Bloom* during Hard Mode.
-* **Visual Polish**
-  * Reworked and polished character sprites and action animations for the Fighter, Mage, and Tank, along with smooth slide-in menu transitions.
+* **Party Battle Overhaul**
+  * Fully resolved structural issues with the Party Battle system and corrected the boss attack vector so lunges dash strictly left.
+* **Party Rebalancing**
+  * Integrated a physical vulnerability multiplier (+40% physical damage taken) so the Fighter hits much harder without affecting Solo Mode balance.
+  * Increased boss attack damage and AOE frequency to enforce active Mage healing rotations.
+* **Visual FX & Animations**
+  * Added a continuous crimson afterimage ghost trail (*Roaring Knight* style) drifting behind the boss.
+  * Implemented a continuous sine-wave float oscillation for natural hovering motion on the boss puppet layer.
